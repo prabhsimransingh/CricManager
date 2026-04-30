@@ -866,33 +866,69 @@ function copyXIText(){
 // Load community CSV files from /data/ directory
 async function loadCommunityData() {
   try {
-    // Fetch the data directory listing
-    const response = await fetch('./data/');
-    const html = await response.text();
+    let csvFiles = [];
 
-    // Extract CSV filenames from HTML
-    const regex = /href="([^"]*\.csv)"/gi;
-    const matches = [...html.matchAll(regex)];
-    const csvFiles = matches.map(m => m[1]);
+    // Try local directory first (works during development with local server)
+    try {
+      const response = await fetch('./data/');
+      if (response.ok) {
+        const html = await response.text();
+        const regex = /href="([^"]*\.csv)"/gi;
+        const matches = [...html.matchAll(regex)];
+        csvFiles = matches.map(m => m[1]);
+      }
+    } catch (err) {
+      // Continue to GitHub API fallback
+    }
 
-    if (csvFiles.length === 0) return;
+    // If no files found locally, try GitHub API (works on GitHub Pages)
+    if (csvFiles.length === 0) {
+      try {
+        const apiResponse = await fetch('https://api.github.com/repos/prabhsimransingh/CricManager/contents/data');
+        if (apiResponse.ok) {
+          const files = await apiResponse.json();
+          csvFiles = files
+            .filter(f => f.name.endsWith('.csv'))
+            .map(f => f.name);
+        }
+      } catch (err) {
+        // GitHub API also failed, continue silently
+      }
+    }
+
+    if (csvFiles.length === 0) {
+      console.log('No community scorecards found');
+      return;
+    }
 
     // Load and parse each CSV
+    let loadedCount = 0;
     for (const file of csvFiles) {
       try {
-        const csvResponse = await fetch(`./data/${file}`);
-        if (!csvResponse.ok) continue;
-        const csvData = await csvResponse.text();
-        parseOneCSV(csvData, file);
+        // Always fetch from GitHub raw content (works everywhere)
+        const csvResponse = await fetch(`https://raw.githubusercontent.com/prabhsimransingh/CricManager/main/data/${file}`);
+        if (!csvResponse.ok) {
+          // Try local fallback
+          const localResponse = await fetch(`./data/${file}`);
+          if (!localResponse.ok) continue;
+          const csvData = await localResponse.text();
+          parseOneCSV(csvData, file);
+        } else {
+          const csvData = await csvResponse.text();
+          parseOneCSV(csvData, file);
+        }
+        loadedCount++;
       } catch (err) {
         console.warn(`Failed to load community data file ${file}:`, err);
       }
     }
 
-    log(`✅ Loaded ${csvFiles.length} community scorecard(s)`);
+    if (loadedCount > 0) {
+      log(`✅ Loaded ${loadedCount} community scorecard(s)`);
+    }
   } catch (err) {
-    // Silently fail if /data/ directory doesn't exist (offline or not set up yet)
-    console.log('Community data not available (offline or not configured)');
+    // Silently fail if data directory not available
+    console.log('Community data not available');
   }
 }
 
