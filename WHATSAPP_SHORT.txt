@@ -1,0 +1,109 @@
+🏏 CRICMANAGER - Cricket Analytics App
+
+📊 Dashboard - Top players & match stats
+👥 Players - Browse 100+ players, filter by role
+📈 Trends - Track performance over 5 matches
+🤝 Partnerships - Best batting pairs
+🏆 Team Split - Auto-balance players into teams
+🎯 XI Builder - Create optimal playing XI
+🖨️ Match Card - Professional lineup export
+🔒 Offline Mode - Works without internet
+
+✨ Features:
+✓ No signup needed
+✓ No ads or tracking
+✓ Your data stays on your phone
+✓ 14 pre-loaded matches
+✓ 100+ players analyzed
+✓ Works on phone/tablet/desktop
+
+👉 Try now: https://prabhsimransingh.github.io/CricManager/
+
+FREE • OPEN SOURCE • PRIVACY FIRST 🔐
+
+---
+
+FEATURES EXPLAINED:
+
+1️⃣ DASHBOARD
+See at a glance:
+- Top 10 batsmen & bowlers
+- Hot players (currently in form)
+- Death specialists
+- Recent matches & results
+
+2️⃣ PLAYERS
+Browse all players:
+- Filter by Batsman/Bowler/All-Rounder
+- Filter by team
+- See career stats
+- Know their recent form
+
+3️⃣ TRENDS
+Pick a player, see:
+- Last 5 match performance
+- Runs/wickets progression
+- Charts showing trends
+- Career average vs recent form
+
+4️⃣ PARTNERSHIPS
+Discover power pairs:
+- Which batsmen scored most together?
+- How many times partnered?
+- Average runs per partnership
+- Top 15 partnerships ranked
+
+5️⃣ TEAM SPLIT
+Balance teams fairly:
+- Select 22, 24, or 26 players
+- AI splits into equal strength teams
+- Balanced role distribution
+- Team A vs Team B ready
+
+6️⃣ XI BUILDER
+Create dream XI:
+- Pick your 11 players
+- Smart batting order
+- Smart bowling order
+- Professional card display
+
+7️⃣ MATCH CARD
+Share your lineup:
+- Beautiful card format
+- Both teams displayed
+- Print-friendly
+- Export to WhatsApp
+
+8️⃣ OFFLINE MODE
+Privacy guaranteed:
+- No internet needed after first visit
+- Data stored on YOUR device
+- No cloud sync
+- No tracking whatsoever
+
+---
+
+💡 HOW TO START:
+
+1. Open link on phone/browser
+2. See 14 pre-loaded matches auto-load
+3. Explore any feature tab
+4. Analyze & share!
+
+Optional: Upload your own CricClubs CSV scorecard
+
+---
+
+WHAT'S INCLUDED:
+
+📋 14 Phantoms Cricket matches
+👥 100+ players analyzed
+📊 Multi-match aggregation
+🎯 Smart algorithms for team balancing
+📱 Mobile responsive design
+
+---
+
+👉 https://prabhsimransingh.github.io/CricManager/
+
+Made for cricket enthusiasts by cricket enthusiasts ❤️
