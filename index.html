@@ -765,7 +765,8 @@ function toggleSplitPlayer(name){
   renderTeamSplit();
 }
 function selectAllPlayers(count){
-  splitSelection=Object.values(DB.players).slice(0,count);
+  const scored=Object.values(DB.players).sort((a,b)=>(b.runs*0.4+b.wickets*0.6)-(a.runs*0.4+a.wickets*0.6));
+  splitSelection=scored.slice(0,count);
   renderTeamSplit();
 }
 function clearSelection(){
@@ -796,7 +797,7 @@ function filterRoster(v){rfText=v.toLowerCase();renderRoster();}function filterR
 function togglePlayer(name){const idx=selectedXI.findIndex(p=>p.name===name);const fmt=getXIFormat();if(idx>=0)selectedXI.splice(idx,1);else{if(selectedXI.length>=fmt){alert(`Max ${fmt}`);return;}const p=DB.players[name];if(p)selectedXI.push(p);}renderRoster();}
 function renderSlots(){const fmt=getXIFormat();document.getElementById('xi-count').textContent=`(${selectedXI.length}/${fmt})`;document.getElementById('xi-slots').innerHTML=Array.from({length:fmt},(_,i)=>{const p=selectedXI[i];return p?`<div class="slot filled"><div class="slot-pos">#${i+1}</div><div class="slot-name">${p.name}</div><div class="slot-role">${p.role}</div></div>`:`<div class="slot"><div style="font-size:1.4rem;color:var(--bg3)">+</div></div>`;}).join('');}
 function clearXI(){selectedXI=[];renderRoster();document.getElementById('xi-result').style.display='none';}
-function orderBatsmen(list){return list.filter(p=>p.role==='Batsman'||p.role==='All-Rounder').sort((a,b)=>(b.powerplay_avg||0)-(a.powerplay_avg||0)||(b.strike_rate||0)-(a.strike_rate||0)|(b.form==='hot'?1:b.form==='cold'?-1:0)-(a.form==='hot'?1:a.form==='cold'?-1:0));}
+function orderBatsmen(list){return list.filter(p=>p.role==='Batsman'||p.role==='All-Rounder').sort((a,b)=>(b.powerplay_avg||0)-(a.powerplay_avg||0)||(b.strike_rate||0)-(a.strike_rate||0)||(b.form==='hot'?1:b.form==='cold'?-1:0)-(a.form==='hot'?1:a.form==='cold'?-1:0));}
 function orderBowlers(list){const ph={'Powerplay':0,'Middle':1,'Death':2};return list.filter(p=>p.role==='Bowler'||p.role==='All-Rounder').sort((a,b)=>(ph[a.over_spec]||2)-(ph[b.over_spec]||2)||(a.economy||999)-(b.economy||999)||b.wickets-a.wickets);}
 function generateSmartOrder(){if(!selectedXI.length){alert('Select players first');return;}const batsmen=orderBatsmen(selectedXI),bowlers=orderBowlers(selectedXI);document.getElementById('xi-result').style.display='block';document.getElementById('xi-bat-tbody').innerHTML=batsmen.map((p,i)=>`<tr><td class="tbl-n">${i+1}</td><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${fmt1(p.strike_rate)}</td><td>${fbadge(p.form)}</td></tr>`).join('');document.getElementById('xi-bowl-tbody').innerHTML=bowlers.slice(0,Math.max(7,selectedXI.length-4)).map((p,i)=>`<tr><td class="tbl-n">${i+1}</td><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.wickets}</td><td>${fmt2(p.economy)}</td><td>${phaseBadge(p.over_spec)}</td></tr>`).join('');const ppBowls=bowlers.filter(p=>p.over_spec==='Powerplay'),midBowls=bowlers.filter(p=>p.over_spec==='Middle'),deathBowls=bowlers.filter(p=>p.over_spec==='Death');let rotation='';if(ppBowls.length)rotation+=`<strong style="color:var(--amber)">⚡ Powerplay:</strong> ${ppBowls.map(p=>`${p.name} (${fmt2(p.economy)} econ)`).join(', ')}<br>`;if(midBowls.length)rotation+=`<strong style="color:var(--blue)">🎯 Middle:</strong> ${midBowls.map(p=>`${p.name} (${p.wickets}W)`).join(', ')}<br>`;if(deathBowls.length)rotation+=`<strong style="color:var(--red)">💀 Death:</strong> ${deathBowls.map(p=>`${p.name} (${p.death_wickets}W)`).join(', ')}<br>`;document.getElementById('bowl-rotation').innerHTML=rotation||'<span style="color:var(--muted)">No bowlers selected</span>';}
 
@@ -933,6 +934,11 @@ async function loadCommunityData() {
       log(`✅ Loaded ${loadedCount} community scorecard(s)`);
       finalizeDB();
     }
+    // Cache community data so subsequent visits load instantly from localStorage
+    // Always refresh _cachedAt so even a 24h re-check that finds no new data resets the timer
+    if (DB.matches.length > 0) {
+      localStorage.setItem('cricket-db', JSON.stringify({...DB, _keys: Array.from(DB._keys || []), _cachedAt: Date.now()}));
+    }
     // Always render after load attempt — stops spinner even if no data
     updateNavCount();
     renderDashboard();
@@ -950,17 +956,25 @@ async function loadCommunityData() {
 (function() {
   const saved = localStorage.getItem('cricket-db');
   if (saved) {
-    const loaded = JSON.parse(saved);
-    DB.matches = loaded.matches || [];
-    DB.players = loaded.players || {};
-    DB.partnerships = loaded.partnerships || [];
-    DB._keys = new Set(loaded._keys || []);
-    finalizeDB();
-    updateNavCount();
-    renderDashboard();
-    renderPlayers();
-    initTrends();
-    renderPartnerships();
+    try {
+      const loaded = JSON.parse(saved);
+      DB.matches = loaded.matches || [];
+      DB.players = loaded.players || {};
+      DB.partnerships = loaded.partnerships || [];
+      DB._keys = new Set(loaded._keys || []);
+      finalizeDB();
+      updateNavCount();
+      renderDashboard();
+      renderPlayers();
+      initTrends();
+      renderPartnerships();
+
+      // If cache is less than 24h old and has community data, skip re-fetch
+      const cacheAge = Date.now() - (loaded._cachedAt || 0);
+      if (cacheAge < 86400000 && DB.matches.length > 0) return;
+    } catch(e) {
+      localStorage.removeItem('cricket-db');
+    }
   }
 
   // Load community data (async, doesn't block UI)
