@@ -58,6 +58,37 @@ Dark mode would help users at night and reduce eye strain.
 Could add toggle in settings to switch between light/dark themes.
 ```
 
+### 🏏 Scorecard Data
+Help build our community cricket database!
+
+**How to contribute**:
+1. Export your match scorecard from [CricClubs](https://www.cricclubs.com/) as CSV
+2. Name the file clearly: `YYYY-MM-DD-team1-vs-team2.csv`
+   - Example: `2026-04-15-delhi-vs-mumbai.csv`
+3. Fork the repo and add your CSV to the `data/` directory
+4. Submit a pull request with match details
+
+**Why contribute?**
+- ✅ Your match data becomes available to all CricManager users
+- ✅ Build a collaborative cricket analytics knowledge base
+- ✅ Help others analyze cricket trends
+- ✅ Contribute to the community cricket movement
+
+**Example**:
+```
+File: 2026-04-20-alpha-vs-beta.csv
+Match: Alpha team vs Beta team
+Date: April 20, 2026
+Players: 22 players (all-rounders, batsmen, bowlers)
+```
+
+**Full Guide**: See [data/README.md](../data/README.md) for detailed instructions on:
+- Exporting from CricClubs
+- File naming conventions
+- CSV format requirements
+- Quality guidelines
+- FAQ
+
 ### 📝 Documentation
 Help us improve docs!
 

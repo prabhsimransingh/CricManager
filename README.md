@@ -78,6 +78,36 @@
 4. Click **"Upload & Parse"**
 5. Explore features in the tabs above!
 
+## 🌐 Community Scorecard Data
+
+**Automatic Data Sharing** 📤
+
+CricManager comes with built-in **community scorecard data**! 
+
+- ✅ **Auto-loaded**: All CSV files in `/data/` directory load automatically
+- ✅ **Shared data**: Every user sees all community scorecards
+- ✅ **Works offline**: Bundled with the app, cached locally
+- ✅ **Community-driven**: Users contribute matches via GitHub PRs
+
+### How It Works
+When you open CricManager, it automatically loads all scorecards from the `/data/` folder. No upload needed for community data—you get instant access to everyone's match data!
+
+### Contribute Your Scorecard
+Have a cricket match scorecard? Add it to the community!
+
+1. **Export** your match from CricClubs as CSV
+2. **Name it** clearly: `2026-MM-DD-team1-vs-team2.csv`
+3. **Submit** a GitHub PR to add it to `/data/`
+4. **Share** with everyone once merged!
+
+👉 See [data/README.md](data/README.md) for detailed contribution guide.
+
+### Example Community Data
+- `2026-02-01-clinical-vs-surgical.csv` - Sample match included
+- (Your matches here! 👈)
+
+---
+
 ## 📋 CSV Format
 
 CricManager accepts CSV exports from **CricClubs** in the following format:

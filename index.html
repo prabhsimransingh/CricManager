@@ -863,7 +863,40 @@ function copyXIText(){
   navigator.clipboard.writeText(txt);alert('✅ Copied! Ready to paste in WhatsApp.');
 }
 
-// Load from localStorage on page load
+// Load community CSV files from /data/ directory
+async function loadCommunityData() {
+  try {
+    // Fetch the data directory listing
+    const response = await fetch('./data/');
+    const html = await response.text();
+
+    // Extract CSV filenames from HTML
+    const regex = /href="([^"]*\.csv)"/gi;
+    const matches = [...html.matchAll(regex)];
+    const csvFiles = matches.map(m => m[1]);
+
+    if (csvFiles.length === 0) return;
+
+    // Load and parse each CSV
+    for (const file of csvFiles) {
+      try {
+        const csvResponse = await fetch(`./data/${file}`);
+        if (!csvResponse.ok) continue;
+        const csvData = await csvResponse.text();
+        parseOneCSV(csvData, file);
+      } catch (err) {
+        console.warn(`Failed to load community data file ${file}:`, err);
+      }
+    }
+
+    log(`✅ Loaded ${csvFiles.length} community scorecard(s)`);
+  } catch (err) {
+    // Silently fail if /data/ directory doesn't exist (offline or not set up yet)
+    console.log('Community data not available (offline or not configured)');
+  }
+}
+
+// Load from localStorage on page load, then load community data
 (function() {
   const saved = localStorage.getItem('cricket-db');
   if (saved) {
@@ -878,6 +911,9 @@ function copyXIText(){
     renderPlayers();
     initTrends();
   }
+
+  // Load community data (async, doesn't block UI)
+  loadCommunityData();
 })();
 </script>
 </body>
