@@ -925,6 +925,16 @@ async function loadCommunityData() {
 
     if (loadedCount > 0) {
       log(`✅ Loaded ${loadedCount} community scorecard(s)`);
+
+      // Finalize database after loading community data
+      // This rebuilds players, partnerships, and populates UI dropdowns
+      finalizeDB();
+
+      // Update navigation count and render dashboard with community data
+      updateNavCount();
+      renderDashboard();
+      renderPlayers();
+      initTrends();
     }
   } catch (err) {
     // Silently fail if data directory not available
