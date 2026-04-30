@@ -6,6 +6,10 @@
 <title>Cricket Analyzer — CricClubs</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]);t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureFlagEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+posthog.init('PASTE_YOUR_API_KEY_HERE', {api_host: 'https://us.i.posthog.com', person_profiles: 'identified_only'});
+</script>
 <style>
 :root{--em:#10b981;--em2:#059669;--em3:#047857;--bg:#f9fafb;--bg2:#f3f4f6;--bg3:#e5e7eb;--dark:#111827;--dark2:#1f2937;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--white:#fff;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -645,7 +649,7 @@ function updateNavCount(){document.getElementById('nav-count').textContent=`${DB
 // ════════════════════════════════════════════
 // NAV + HELPERS
 // ════════════════════════════════════════════
-function goTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');({dashboard:renderDashboard,players:renderPlayers,trends:initTrends,partnerships:renderPartnerships,teamsplit:renderTeamSplit,xi:initXI,matchcard:renderMatchCard})[id]?.();_track('page',id);}
+function goTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');({dashboard:renderDashboard,players:renderPlayers,trends:initTrends,partnerships:renderPartnerships,teamsplit:renderTeamSplit,xi:initXI,matchcard:renderMatchCard})[id]?.();_track('page',id);posthog.capture('$pageview',{page:id});}
 function goTabByName(id){const m={upload:0,dashboard:1,players:2,trends:3,partnerships:4,teamsplit:5,xi:6,matchcard:7};goTab(id,document.querySelectorAll('.ntab')[m[id]||0]);}
 const fmt1=v=>(+(v||0)).toFixed(1),fmt2=v=>(+(v||0)).toFixed(2);
 const allP=()=>Object.values(DB.players);
@@ -679,7 +683,7 @@ function filterPlayers(){
   let list=allP();
   if(q)list=list.filter(p=>p.name.toLowerCase().includes(q));if(role)list=list.filter(p=>p.role===role);if(form)list=list.filter(p=>p.form===form);if(team)list=list.filter(p=>p.team===team);
   list.sort((a,b)=>(b.runs+b.wickets)-(a.runs+a.wickets));
-  document.getElementById('pl-tbody').innerHTML=list.map(p=>{const catches=p.catches+p.wk_catches;return `<tr><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${p.wickets}</td><td>${catches>0?`${catches}${p.wk_catches?'🧤':''}`:'-'}</td><td>${p.matches_played}</td><td>${fmt1(p.strike_rate)}</td><td>${p.economy>0?fmt2(p.economy):'—'}</td><td>${p.powerplay_avg>0?fmt1(p.powerplay_avg):'—'}</td><td>${fbadge(p.form)}</td></tr>`;}).join('');
+  document.getElementById('pl-tbody').innerHTML=list.map(p=>{const catches=p.catches+p.wk_catches;return `<tr><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${p.wickets}</td><td>${catches>0?`${catches}${p.wk_catches?'🧤':''}`:'-'}</td><td>${p.matches_played}</td><td>${p.balls_faced>0?fmt1(p.strike_rate):'—'}</td><td>${p.economy>0?fmt2(p.economy):'—'}</td><td>${p.powerplay_avg>0?fmt1(p.powerplay_avg):'—'}</td><td>${fbadge(p.form)}</td></tr>`;}).join('');
 }
 
 // ════════════════════════════════════════════
@@ -927,21 +931,18 @@ async function loadCommunityData() {
 
     if (loadedCount > 0) {
       log(`✅ Loaded ${loadedCount} community scorecard(s)`);
-
-      // Finalize database after loading community data
-      // This rebuilds players, partnerships, and populates UI dropdowns
       finalizeDB();
-
-      // Update navigation count and render dashboard with community data
-      updateNavCount();
-      renderDashboard();
-      renderPlayers();
-      initTrends();
-      renderPartnerships();
     }
+    // Always render after load attempt — stops spinner even if no data
+    updateNavCount();
+    renderDashboard();
+    renderPlayers();
+    initTrends();
+    renderPartnerships();
   } catch (err) {
-    // Silently fail if data directory not available
     console.log('Community data not available');
+    // Still hide spinner on error
+    renderDashboard();
   }
 }
 
@@ -965,6 +966,9 @@ async function loadCommunityData() {
   // Load community data (async, doesn't block UI)
   loadCommunityData();
 })();
+
+// ── Identity ───────────────────────────────────
+(function(){const k='_ph_user';let u=localStorage.getItem(k);if(!u){u=prompt('Welcome! Enter your name for analytics (or leave blank):','');if(u&&u.trim()){u=u.trim();localStorage.setItem(k,u);posthog.identify(u,{name:u});}else{localStorage.setItem(k,'anonymous');}}else if(u!=='anonymous'){posthog.identify(u,{name:u});}})();
 
 // ── Analytics ──────────────────────────────────
 function _track(type,label){const k=`${type}:${label}`;const a=JSON.parse(localStorage.getItem('_analytics')||'{}');a[k]=(a[k]||0)+1;localStorage.setItem('_analytics',JSON.stringify(a));}
