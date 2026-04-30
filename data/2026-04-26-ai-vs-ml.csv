@@ -1,0 +1,100 @@
+Apr 26th 2026:  LeagueML won by 4 Wickets (04/26/2026)
+                     AI Vs ML
+
+
+
+,,,AI Batting
+
+	BatsMan, How Out, Fielder, Bowler, Runs, Balls, Fours,Sixers
+	Sanjay Moyya,ct,Kumar S,Sateesh J,2,4,0,0
+Suriya Gurumurthy,ct,Shishir J,Sateesh J,6,12,0,0
+Chidanand Sekar,rtno,,,22,28,0,0
+Karthik Jaikumar,ct,Sateesh J,Anubhav S,9,7,2,0
+Vln Vasudevan,ct,Sateesh J,Anubhav S,12,14,1,0
+Raj Raj,ro,,Vijay P,41,22,4,2
+Rohit Suri,ctw,Ravi K,Vijay P,4,11,0,0
+Prabh Singh,rtno,,,0,4,0,0
+Sathish Natarajan,ctw,Ravi K,Anubhav S,4,8,0,0
+Vivek Baveja,ct,Shishir J,Vijay P,22,14,2,1
+Venkat Visvanathan,ct,Parag V,Shishir J,0,4,0,0
+Subbu Kuchibhotla,,,,3,6,0,0
+Tbd1,,,,0,0,0,0
+
+	
+		Byes: 1 , Leg Byes: 0, Wickets : 9  Wides : 9, No Balls: 2 Penalty : 0,137,22.0
+
+,,,ML Bowling 
+													
+	Bowler,Overs,Madiens,Runs,Wickets,Wides,No Balls,Hattricks,Dot Balls
+	Sateesh Jamakhandi,3.0,0,12,2,1,1,0,12
+Shishir Jain,3.0,0,15,1,2,0,0,9
+Ritesh Chhajer,2.0,0,16,0,1,1,0,4
+Anubhav Sharma,3.0,0,20,3,3,0,0,9
+Kumar Sundararaman,2.0,0,20,0,0,0,0,3
+Parag Vaidya,3.0,0,20,0,2,0,0,10
+Kamal Bhatia,3.0,0,21,0,0,0,0,10
+Vijay Pinni,3.0,0,12,2,0,0,0,10
+
+Total, 22.0 ,0,136,9,9,2,0,67
+
+AI Fall of Wickets
+                      
+Sanjay M, 1-10 ,  Over 2.3
+Suriya G, 2-12 ,  Over 2.6
+Karthik , 3-30 ,  Over 4.4
+Chidanan, 3-54Retired ,  Over 9.4
+VLN V, 4-62 ,  Over 10.6
+Rohit S, 5-83 ,  Over 13.6
+Prabh S, 5-93Retired ,  Over 15.3
+Raj R, 5-102Retired ,  Over 16.5
+Sathish , 6-109 ,  Over 17.5
+Venkat V, 7-114 ,  Over 18.5
+Vivek B, 8-133 ,  Over 21.2
+Raj R, 9-137 ,  Over 21.6
+
+
+,,,ML Batting
+                            
+BatsMan, How Out, Fielder, Bowler, Runs, Balls, Fours,Sixers
+	Anubhav Sharma,b,,Suriya G,48,33,3,4
+Vinod Baya,ctw,Sanjay M,Vivek B,0,1,0,0
+Ravi Poruri,ctw,Sanjay M,Vivek B,3,8,0,0
+Sateesh Jamakhandi,rtno,,,8,15,1,0
+Ramki Ramki,rtno,,,20,19,2,0
+Ritesh Chhajer,,,,16,14,2,0
+Ravi Krishnaswamy,ctw,Sanjay M,Rohit S,0,4,0,0
+Kumar Sundararaman,rtno,,,12,12,2,0
+Shishir Jain,ctw,Sanjay M,Suriya G,0,2,0,0
+Parag Vaidya,ro,Sanjay M,Rohit S,4,1,1,0
+Kamal Bhatia,,,,2,5,0,0
+Vijay Pinni,,,,10,6,0,1
+Tbd2,,,,0,0,0,0
+
+Byes: 1 , Leg Byes: 0, Wickets : 6  Wides : 12, No Balls: 2 Penalty : 0,138,19.4
+
+,,,AI Bowling
+
+	Bowler,Overs,Madiens,Runs,Wickets,Wides,No Balls,Hattricks,Dot Balls
+	Vivek Baveja,3.0,0,17,2,1,0,0,12
+Vln Vasudevan,1.0,0,13,0,1,0,0,3
+Subbu Kuchibhotla,1.0,0,15,0,0,0,0,2
+Karthik Jaikumar,2.0,0,6,0,2,0,0,9
+Raj Raj,3.0,0,20,0,2,0,0,9
+Sanjay Moyya,1.4,0,14,0,5,1,0,4
+Suriya Gurumurthy,2.0,0,16,2,0,0,0,7
+Rohit Suri,3.0,0,18,1,0,0,0,10
+Chidanand Sekar,3.0,0,18,0,1,1,0,9
+
+Total, 19.4 ,0,137,6,12,2,0,65
+
+ML Fall of wickets
+                      
+Vinod B, 1-1 ,  Over0.2
+Ravi P, 2-29 ,  Over3.2
+Anubhav , 3-77 ,  Over10.6
+Sateesh , 3-77Retired ,  Over11.0
+Ramki R, 3-90Retired ,  Over13.0
+Ravi K, 4-95 ,  Over13.6
+Shishir , 5-118 ,  Over17.5
+Kumar S, 5-122Retired ,  Over18.0
+Parag V, 6-122 ,  Over18.1
