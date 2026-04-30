@@ -20,6 +20,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .page{display:none;padding:2rem;max-width:1360px;margin:0 auto;}
 .page.active{display:block;animation:fin .2s ease;}
 @keyframes fin{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:1.4rem;margin-bottom:1.25rem;}
 .card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.5px;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;}
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.25rem;}
@@ -148,7 +149,8 @@ code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;fon
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="page active">
-  <div id="db-empty" class="empty"><div class="empty-icon">📊</div><div class="empty-title">No data yet</div><p>Upload CSV files on the Upload tab</p><button class="btn btn-em" style="margin-top:1.5rem" onclick="goTabByName('upload')">Go to Upload tab</button></div>
+  <div id="db-loading" class="empty"><div class="empty-icon" style="display:inline-block;animation:spin 1.5s linear infinite">⏳</div><div class="empty-title" style="margin-top:.5rem">Loading match data…</div><p style="margin-top:.5rem;font-size:.85rem">Fetching community scorecards</p></div>
+  <div id="db-empty" class="empty" style="display:none"><div class="empty-icon">📊</div><div class="empty-title">No data yet</div><p>Upload CSV files on the Upload tab</p><button class="btn btn-em" style="margin-top:1.5rem" onclick="goTabByName('upload')">Go to Upload tab</button></div>
   <div id="db-content" style="display:none;">
     <div class="kpi-row" id="kpi-row"></div>
     <div class="g2">
@@ -643,7 +645,7 @@ function updateNavCount(){document.getElementById('nav-count').textContent=`${DB
 // ════════════════════════════════════════════
 // NAV + HELPERS
 // ════════════════════════════════════════════
-function goTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');({dashboard:renderDashboard,players:renderPlayers,trends:initTrends,partnerships:renderPartnerships,teamsplit:renderTeamSplit,xi:initXI,matchcard:renderMatchCard})[id]?.();}
+function goTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');({dashboard:renderDashboard,players:renderPlayers,trends:initTrends,partnerships:renderPartnerships,teamsplit:renderTeamSplit,xi:initXI,matchcard:renderMatchCard})[id]?.();_track('page',id);}
 function goTabByName(id){const m={upload:0,dashboard:1,players:2,trends:3,partnerships:4,teamsplit:5,xi:6,matchcard:7};goTab(id,document.querySelectorAll('.ntab')[m[id]||0]);}
 const fmt1=v=>(+(v||0)).toFixed(1),fmt2=v=>(+(v||0)).toFixed(2);
 const allP=()=>Object.values(DB.players);
@@ -651,7 +653,7 @@ function rbadge(r){return`<span class="badge ${{Batsman:'b-bat',Bowler:'b-bowl',
 function fbadge(f){return`<span class="badge ${{hot:'b-hot',stable:'b-stable',cold:'b-cold'}[f]||'b-stable'}">${{hot:'🔥 Hot',stable:'➡️',cold:'❄️'}[f]||'—'}</span>`;}
 function phaseBadge(s){const m={'Powerplay':'b-pp','Death':'b-death','Middle':'b-mid'};return(s&&s!=='—')?`<span class="badge ${m[s]||'b-mid'}">${s}</span>`:'—';}
 function hasData(){return Object.keys(DB.players).length>0;}
-function showContent(p){const h=hasData();['empty','content'].forEach((s,i)=>{const e=document.getElementById(`${p}-${s}`);if(e)e.style.display=i===0?(h?'none':'block'):(h?'block':'none');});return h;}
+function showContent(p){const h=hasData();const loading=document.getElementById(`${p}-loading`);if(loading)loading.style.display='none';['empty','content'].forEach((s,i)=>{const e=document.getElementById(`${p}-${s}`);if(e)e.style.display=i===0?(h?'none':'block'):(h?'block':'none');});return h;}
 
 // ════════════════════════════════════════════
 // DASHBOARD
@@ -963,6 +965,27 @@ async function loadCommunityData() {
   // Load community data (async, doesn't block UI)
   loadCommunityData();
 })();
+
+// ── Analytics ──────────────────────────────────
+function _track(type,label){const k=`${type}:${label}`;const a=JSON.parse(localStorage.getItem('_analytics')||'{}');a[k]=(a[k]||0)+1;localStorage.setItem('_analytics',JSON.stringify(a));}
+document.addEventListener('click',e=>{const el=e.target.closest('button,.pchip,.ntab');if(el&&!el.closest('#_analytics-modal'))_track('btn',(el.innerText||'').slice(0,30).trim());});
+function _showAnalytics(){const a=JSON.parse(localStorage.getItem('_analytics')||'{}');const rows=Object.entries(a).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<tr><td style="padding:.3rem .6rem;color:var(--muted);font-size:.8rem">${k.split(':')[0]}</td><td style="padding:.3rem .6rem">${k.slice(k.indexOf(':')+1)}</td><td style="padding:.3rem .6rem;font-weight:700;text-align:right">${v}</td></tr>`).join('');document.getElementById('_analytics-body').innerHTML=rows||'<tr><td colspan="3" style="padding:.5rem;color:var(--muted)">No data yet</td></tr>';document.getElementById('_analytics-modal').showModal();}
+function _clearAnalytics(){localStorage.removeItem('_analytics');_showAnalytics();}
 </script>
+<button onclick="_showAnalytics()" title="Analytics" style="position:fixed;bottom:1.2rem;right:1.2rem;z-index:9999;width:2.6rem;height:2.6rem;border-radius:50%;border:none;background:var(--em3,#6c63ff);color:#fff;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)">📊</button>
+
+<dialog id="_analytics-modal" style="border:none;border-radius:1rem;padding:1.4rem;min-width:320px;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.25);background:var(--card,#1e1e2e);color:var(--text,#fff)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <strong>Analytics</strong>
+    <div style="display:flex;gap:.5rem">
+      <button onclick="_clearAnalytics()" style="font-size:.75rem;padding:.2rem .6rem;border-radius:.4rem;border:1px solid var(--muted);background:transparent;color:var(--muted);cursor:pointer">Clear</button>
+      <button onclick="this.closest('dialog').close()" style="font-size:.75rem;padding:.2rem .6rem;border-radius:.4rem;border:none;background:var(--em3,#6c63ff);color:#fff;cursor:pointer">Close</button>
+    </div>
+  </div>
+  <table style="width:100%;border-collapse:collapse;font-size:.85rem">
+    <thead><tr style="border-bottom:1px solid rgba(255,255,255,.1)"><th style="padding:.3rem .6rem;text-align:left;color:var(--muted);font-weight:500">Type</th><th style="padding:.3rem .6rem;text-align:left;color:var(--muted);font-weight:500">Label</th><th style="padding:.3rem .6rem;text-align:right;color:var(--muted);font-weight:500">Count</th></tr></thead>
+    <tbody id="_analytics-body"></tbody>
+  </table>
+</dialog>
 </body>
 </html>
