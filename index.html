@@ -967,8 +967,6 @@ async function loadCommunityData() {
   loadCommunityData();
 })();
 
-// ── Identity ───────────────────────────────────
-(function(){const k='_ph_user';let u=localStorage.getItem(k);if(!u){u=prompt('Welcome! Enter your name for analytics (or leave blank):','');if(u&&u.trim()){u=u.trim();localStorage.setItem(k,u);posthog.identify(u,{name:u});}else{localStorage.setItem(k,'anonymous');}}else if(u!=='anonymous'){posthog.identify(u,{name:u});}})();
 
 // ── Analytics ──────────────────────────────────
 function _track(type,label){const k=`${type}:${label}`;const a=JSON.parse(localStorage.getItem('_analytics')||'{}');a[k]=(a[k]||0)+1;localStorage.setItem('_analytics',JSON.stringify(a));}
