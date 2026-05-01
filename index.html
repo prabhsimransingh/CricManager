@@ -188,7 +188,7 @@ code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;fon
         <select class="sel" onchange="filterPlayers()"><option value="">All Form</option><option value="hot">🔥 Hot</option><option value="stable">➡️ Stable</option><option value="cold">❄️ Cold</option></select>
         <select class="sel" id="pl-team-filter" onchange="filterPlayers()"><option value="">All Teams</option></select>
       </div>
-      <table class="tbl"><thead><tr><th>Player</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Catches</th><th>4s</th><th>6s</th><th>Mat</th><th>SR</th><th>Econ</th><th>PP Avg</th><th>Form</th></tr></thead><tbody id="pl-tbody"></tbody></table>
+      <table class="tbl"><thead><tr><th>Player</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Catches</th><th>4s</th><th>6s</th><th>Econ</th><th>Form</th></tr></thead><tbody id="pl-tbody"></tbody></table>
     </div>
   </div>
 </div>
@@ -693,7 +693,7 @@ function filterPlayers(){
   let list=allP();
   if(q)list=list.filter(p=>p.name.toLowerCase().includes(q));if(role)list=list.filter(p=>p.role===role);if(form)list=list.filter(p=>p.form===form);if(team)list=list.filter(p=>p.team===team);
   list.sort((a,b)=>(b.runs+b.wickets)-(a.runs+a.wickets));
-  document.getElementById('pl-tbody').innerHTML=list.map(p=>{const catches=p.catches+p.wk_catches;return `<tr onclick="goPlayerTrend('${p.name.replace(/'/g,"\\'")}')" style="cursor:pointer"><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${p.wickets}</td><td>${catches>0?`${catches}${p.wk_catches?'🧤':''}`:'-'}</td><td>${p.fours||0}</td><td>${p.sixes||0}</td><td>${p.matches_played}</td><td>${p.balls_faced>0?fmt1(p.strike_rate):'—'}</td><td>${p.economy>0?fmt2(p.economy):'—'}</td><td>${p.powerplay_avg>0?fmt1(p.powerplay_avg):'—'}</td><td>${fbadge(p.form)}</td></tr>`;}).join('');
+  document.getElementById('pl-tbody').innerHTML=list.map(p=>{const catches=p.catches+p.wk_catches;return `<tr onclick="goPlayerTrend('${p.name.replace(/'/g,"\\'")}')" style="cursor:pointer"><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${p.wickets}</td><td>${catches>0?`${catches}${p.wk_catches?'🧤':''}`:'-'}</td><td>${p.fours||0}</td><td>${p.sixes||0}</td><td>${p.economy>0?fmt2(p.economy):'—'}</td><td>${fbadge(p.form)}</td></tr>`;}).join('');
 }
 
 // ════════════════════════════════════════════
