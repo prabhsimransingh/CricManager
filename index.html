@@ -941,14 +941,20 @@ async function loadCommunityData() {
 
     // Load and parse each CSV
     let loadedCount = 0;
+    console.log(`[DEBUG] Attempting to load ${csvFiles.length} CSV files:`, csvFiles);
     for (const file of csvFiles) {
       try {
         // Always fetch from GitHub raw content (works everywhere)
-        const csvResponse = await fetch(`https://raw.githubusercontent.com/prabhsimransingh/CricManager/main/data/${file}`);
+        const url=`https://raw.githubusercontent.com/prabhsimransingh/CricManager/main/data/${file}`;
+        const csvResponse = await fetch(url);
         if (!csvResponse.ok) {
+          console.warn(`[DEBUG] GitHub fetch failed for ${file} (${csvResponse.status}), trying local...`);
           // Try local fallback
           const localResponse = await fetch(`./data/${file}`);
-          if (!localResponse.ok) continue;
+          if (!localResponse.ok) {
+            console.warn(`[DEBUG] Local fetch also failed for ${file}`);
+            continue;
+          }
           const csvData = await localResponse.text();
           parseOneCSV(csvData, file);
         } else {
@@ -956,14 +962,17 @@ async function loadCommunityData() {
           parseOneCSV(csvData, file);
         }
         loadedCount++;
+        console.log(`[DEBUG] Loaded ${file} - Total: ${loadedCount}`);
       } catch (err) {
-        console.warn(`Failed to load community data file ${file}:`, err);
+        console.warn(`[DEBUG] Exception loading ${file}:`, err);
       }
     }
 
+    console.log(`[DEBUG] Total loaded: ${loadedCount}, Players in DB: ${Object.keys(DB.players).length}`);
     if (loadedCount > 0) {
       log(`✅ Loaded ${loadedCount} community scorecard(s)`);
       finalizeDB();
+      console.log(`[DEBUG] After finalizeDB - Players: ${Object.keys(DB.players).length}, Partnerships: ${DB.partnerships.length}`);
     }
     // Cache community data so subsequent visits load instantly from localStorage
     // Always refresh _cachedAt so even a 24h re-check that finds no new data resets the timer
