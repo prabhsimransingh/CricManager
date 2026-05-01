@@ -109,22 +109,23 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .mfield label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600;}
 code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;font-family:monospace;}
 ::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:2px;}
-@media(max-width:768px){.topbar{overflow-x:auto;}.page{padding:1rem;}.g2,.g3{grid-template-columns:1fr;}#xi-card{width:100%;}.mform{grid-template-columns:1fr;}.pbar-n{width:130px;}}
+@media(max-width:768px){.topbar{overflow-x:auto;flex-wrap:wrap;}.page{padding:1rem;}.g2,.g3{grid-template-columns:1fr;}#xi-card{width:100%;}.mform{grid-template-columns:1fr;}.pbar-n{width:130px;}.nav-tabs{display:none;}.nav-tabs.mobile-open{display:flex;flex-direction:column;width:100%;order:3;background:var(--dark2);border-top:1px solid rgba(255,255,255,.1);}#hamburger{display:none;background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;padding:.5rem 1rem;align-self:center;}#hamburger.show{display:block;}}@media(min-width:769px){#hamburger{display:none!important;}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="brand"><div class="brand-dot"></div>Cricket Analyzer</div>
+  <button id="hamburger" class="show" onclick="toggleMobileMenu()">☰</button>
   <div class="nav-tabs">
-    <button class="ntab" onclick="goTab('upload',this)">📤 Upload</button>
-    <button class="ntab active" onclick="goTab('dashboard',this)">Dashboard</button>
-    <button class="ntab" onclick="goTab('players',this)">Players</button>
-    <button class="ntab" onclick="goTab('trends',this)">Trends</button>
-    <button class="ntab" onclick="goTab('partnerships',this)">Partnerships</button>
-    <button class="ntab" onclick="goTab('teamsplit',this)">🏆 Team Split</button>
-    <button class="ntab" onclick="goTab('xi',this)">XI Builder</button>
-    <button class="ntab" onclick="goTab('matchcard',this)">Match Card</button>
+    <button class="ntab" onclick="goTab('upload',this);closeMobileMenu()">📤 Upload</button>
+    <button class="ntab active" onclick="goTab('dashboard',this);closeMobileMenu()">Dashboard</button>
+    <button class="ntab" onclick="goTab('players',this);closeMobileMenu()">Players</button>
+    <button class="ntab" onclick="goTab('trends',this);closeMobileMenu()">Trends</button>
+    <button class="ntab" onclick="goTab('partnerships',this);closeMobileMenu()">Partnerships</button>
+    <button class="ntab" onclick="goTab('teamsplit',this);closeMobileMenu()">🏆 Team Split</button>
+    <button class="ntab" onclick="goTab('xi',this);closeMobileMenu()">XI Builder</button>
+    <button class="ntab" onclick="goTab('matchcard',this);closeMobileMenu()">Match Card</button>
   </div>
   <div class="nav-right" id="nav-count">0 matches · 0 players</div>
 </div>
@@ -158,7 +159,7 @@ code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;fon
   <div id="db-content" style="display:none;">
     <div class="kpi-row" id="kpi-row"></div>
     <div class="g2">
-      <div class="card"><div class="card-title">🏏 Top Run Scorers</div><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Runs</th><th>Mat</th><th>SR</th><th>Form</th></tr></thead><tbody id="db-bat"></tbody></table></div>
+      <div class="card"><div class="card-title">🏏 Top Run Scorers</div><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Runs</th><th>4s</th><th>6s</th><th>SR</th><th>Form</th></tr></thead><tbody id="db-bat"></tbody></table></div>
       <div class="card"><div class="card-title">🎯 Top Wicket Takers</div><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Wkts</th><th>Econ</th><th>Phase</th><th>Form</th></tr></thead><tbody id="db-bowl"></tbody></table></div>
     </div>
     <div class="g3">
@@ -181,7 +182,7 @@ code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;fon
         <select class="sel" onchange="filterPlayers()"><option value="">All Form</option><option value="hot">🔥 Hot</option><option value="stable">➡️ Stable</option><option value="cold">❄️ Cold</option></select>
         <select class="sel" id="pl-team-filter" onchange="filterPlayers()"><option value="">All Teams</option></select>
       </div>
-      <table class="tbl"><thead><tr><th>Player</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Catches</th><th>Mat</th><th>SR</th><th>Econ</th><th>PP Avg</th><th>Form</th></tr></thead><tbody id="pl-tbody"></tbody></table>
+      <table class="tbl"><thead><tr><th>Player</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Catches</th><th>4s</th><th>6s</th><th>Mat</th><th>SR</th><th>Econ</th><th>PP Avg</th><th>Form</th></tr></thead><tbody id="pl-tbody"></tbody></table>
     </div>
   </div>
 </div>
@@ -651,6 +652,9 @@ function updateNavCount(){document.getElementById('nav-count').textContent=`${DB
 // ════════════════════════════════════════════
 function goTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');if(btn)btn.classList.add('active');({dashboard:renderDashboard,players:renderPlayers,trends:initTrends,partnerships:renderPartnerships,teamsplit:renderTeamSplit,xi:initXI,matchcard:renderMatchCard})[id]?.();_track('page',id);posthog.capture('$pageview',{page:id});}
 function goTabByName(id){const m={upload:0,dashboard:1,players:2,trends:3,partnerships:4,teamsplit:5,xi:6,matchcard:7};goTab(id,document.querySelectorAll('.ntab')[m[id]||0]);}
+function toggleMobileMenu(){const nav=document.querySelector('.nav-tabs');nav.classList.toggle('mobile-open');}
+function closeMobileMenu(){const nav=document.querySelector('.nav-tabs');nav.classList.remove('mobile-open');}
+function goPlayerTrend(name){goTabByName('trends');setTimeout(()=>{const sel=document.getElementById('trend-sel');if(sel){sel.value=name;loadTrends();}},100);}
 const fmt1=v=>(+(v||0)).toFixed(1),fmt2=v=>(+(v||0)).toFixed(2);
 const allP=()=>Object.values(DB.players);
 function rbadge(r){return`<span class="badge ${{Batsman:'b-bat',Bowler:'b-bowl','All-Rounder':'b-ar'}[r]||'b-bat'}">${r}</span>`;}
@@ -666,7 +670,7 @@ function renderDashboard(){
   if(!showContent('db'))return;
   const P=allP(),tR=P.reduce((s,p)=>s+p.runs,0),tW=P.reduce((s,p)=>s+p.wickets,0);
   document.getElementById('kpi-row').innerHTML=[['Runs',tR.toLocaleString()],['Wickets',tW],['Matches',DB.matches.length],['Players',P.length],['Teams',[...new Set(P.map(p=>p.team))].length],['🔥 Hot',P.filter(p=>p.form==='hot').length],['Sixes',P.reduce((s,p)=>s+p.sixes,0)]].map(([l,v])=>`<div class="kpi"><div class="kv">${v}</div><div class="kl">${l}</div></div>`).join('');
-  document.getElementById('db-bat').innerHTML=[...P].filter(p=>p.runs>0).sort((a,b)=>b.runs-a.runs).slice(0,10).map((p,i)=>`<tr><td class="tbl-n">${i+1}</td><td><strong>${p.name}</strong></td><td style="color:var(--muted);font-size:.8em">${p.team}</td><td style="font-weight:700;color:var(--em3)">${p.runs}</td><td>${p.matches_batted}</td><td>${fmt1(p.strike_rate)}</td><td>${fbadge(p.form)}</td></tr>`).join('');
+  document.getElementById('db-bat').innerHTML=[...P].filter(p=>p.runs>0).sort((a,b)=>b.runs-a.runs).slice(0,10).map((p,i)=>`<tr><td class="tbl-n">${i+1}</td><td><strong>${p.name}</strong></td><td style="color:var(--muted);font-size:.8em">${p.team}</td><td style="font-weight:700;color:var(--em3)">${p.runs}</td><td>${p.fours||0}</td><td>${p.sixes||0}</td><td>${fmt1(p.strike_rate)}</td><td>${fbadge(p.form)}</td></tr>`).join('');
   document.getElementById('db-bowl').innerHTML=[...P].filter(p=>p.wickets>0).sort((a,b)=>b.wickets-a.wickets).slice(0,10).map((p,i)=>`<tr><td class="tbl-n">${i+1}</td><td><strong>${p.name}</strong></td><td style="color:var(--muted);font-size:.8em">${p.team}</td><td style="font-weight:700;color:var(--em3)">${p.wickets}</td><td>${fmt2(p.economy)}</td><td>${phaseBadge(p.over_spec)}</td><td>${fbadge(p.form)}</td></tr>`).join('');
   document.getElementById('db-pp').innerHTML=[...P].filter(p=>p.powerplay_avg>=10).sort((a,b)=>b.powerplay_avg-a.powerplay_avg).slice(0,6).map(p=>`<tr><td><strong>${p.name}</strong></td><td><span class="badge b-pp">${fmt1(p.powerplay_avg)}</span></td></tr>`).join('');
   document.getElementById('db-death').innerHTML=[...P].filter(p=>p.death_wickets>0).sort((a,b)=>b.death_wickets-a.death_wickets).slice(0,6).map(p=>`<tr><td><strong>${p.name}</strong></td><td><span class="badge b-death">${p.death_wickets}</span></td><td>${fmt2(p.economy)}</td></tr>`).join('');
@@ -683,7 +687,7 @@ function filterPlayers(){
   let list=allP();
   if(q)list=list.filter(p=>p.name.toLowerCase().includes(q));if(role)list=list.filter(p=>p.role===role);if(form)list=list.filter(p=>p.form===form);if(team)list=list.filter(p=>p.team===team);
   list.sort((a,b)=>(b.runs+b.wickets)-(a.runs+a.wickets));
-  document.getElementById('pl-tbody').innerHTML=list.map(p=>{const catches=p.catches+p.wk_catches;return `<tr><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${p.wickets}</td><td>${catches>0?`${catches}${p.wk_catches?'🧤':''}`:'-'}</td><td>${p.matches_played}</td><td>${p.balls_faced>0?fmt1(p.strike_rate):'—'}</td><td>${p.economy>0?fmt2(p.economy):'—'}</td><td>${p.powerplay_avg>0?fmt1(p.powerplay_avg):'—'}</td><td>${fbadge(p.form)}</td></tr>`;}).join('');
+  document.getElementById('pl-tbody').innerHTML=list.map(p=>{const catches=p.catches+p.wk_catches;return `<tr onclick="goPlayerTrend('${p.name.replace(/'/g,"\\'")}')" style="cursor:pointer"><td><strong>${p.name}</strong></td><td style="font-size:.8em;color:var(--muted)">${p.team}</td><td>${rbadge(p.role)}</td><td>${p.runs}</td><td>${p.wickets}</td><td>${catches>0?`${catches}${p.wk_catches?'🧤':''}`:'-'}</td><td>${p.fours||0}</td><td>${p.sixes||0}</td><td>${p.matches_played}</td><td>${p.balls_faced>0?fmt1(p.strike_rate):'—'}</td><td>${p.economy>0?fmt2(p.economy):'—'}</td><td>${p.powerplay_avg>0?fmt1(p.powerplay_avg):'—'}</td><td>${fbadge(p.form)}</td></tr>`;}).join('');
 }
 
 // ════════════════════════════════════════════
@@ -870,6 +874,24 @@ function copyXIText(){
   navigator.clipboard.writeText(txt);alert('✅ Copied! Ready to paste in WhatsApp.');
 }
 
+// Hardcoded fallback list — always works even when GitHub API is rate-limited
+const COMMUNITY_FILES = [
+  '2026-02-01-clinical-vs-surgical.csv',
+  '2026-02-06-board-of-peace-vs-leg-piece-corps.csv',
+  '2026-02-06-counting-balls-vs-step-count.csv',
+  '2026-02-07-pioneers-vs-pitchers.csv',
+  '2026-02-08-strict-management-vs-strictly-teacher-pet.csv',
+  '2026-02-13-kashmir-files-vs-karnataka-lies.csv',
+  '2026-03-06-peaceful-power-hitters-vs-super-over-survivors.csv',
+  '2026-03-14-kanyadan-knight-riders-vs-saptapadi-super-kings.csv',
+  '2026-03-20-in-law-vs-outlaw.csv',
+  '2026-03-21-epic-blunder-vs-epic-fury.csv',
+  '2026-03-29-sikandar-vs-dhurandhar.csv',
+  '2026-04-04-bye-patient-vs-hello-doctor.csv',
+  '2026-04-18-founding-fathers-vs-pounding-pandits.csv',
+  '2026-04-26-ai-vs-ml.csv',
+];
+
 // Load community CSV files from /data/ directory
 async function loadCommunityData() {
   try {
@@ -899,13 +921,13 @@ async function loadCommunityData() {
             .map(f => f.name);
         }
       } catch (err) {
-        // GitHub API also failed, continue silently
+        // GitHub API also failed, fall through to hardcoded list
       }
     }
 
+    // Last resort: use the hardcoded list — always available, no API needed
     if (csvFiles.length === 0) {
-      console.log('No community scorecards found');
-      return;
+      csvFiles = COMMUNITY_FILES;
     }
 
     // Load and parse each CSV
