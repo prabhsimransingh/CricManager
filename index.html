@@ -444,11 +444,18 @@ function parseOneCSV(csv, fname) {
 
   const deferred=[];
   // Parse sections
+  console.log(`[DEBUG] Found ${sections.length} sections in ${fname}:`, sections.map(s => `${s.team} ${s.type}`));
   sections.forEach((sec,si) => {
     const end = si+1<sections.length ? sections[si+1].i : lines.length;
     const slines = lines.slice(sec.i+1, end);
-    if(sec.type==='bat') parseBatSec(slines,sec.team,date,winner,deferred);
-    else parseBowlSec(slines,sec.team,date);
+    const lineCount = slines.length;
+    if(sec.type==='bat') {
+      console.log(`[DEBUG] Parsing ${sec.team} batting (${lineCount} lines)`);
+      parseBatSec(slines,sec.team,date,winner,deferred);
+    } else {
+      console.log(`[DEBUG] Parsing ${sec.team} bowling (${lineCount} lines)`);
+      parseBowlSec(slines,sec.team,date);
+    }
   });
 
   // Resolve fielding
