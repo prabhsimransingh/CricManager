@@ -37,7 +37,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .tbl{width:100%;border-collapse:collapse;font-size:.875rem;}
 .tbl th{padding:.65rem .9rem;text-align:left;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--bg3);}
 .tbl td{padding:.7rem .9rem;border-bottom:1px solid var(--bg2);}
-@media(max-width:480px){.tbl{font-size:.75rem;}.tbl th,.tbl td{padding:.4rem .5rem;word-break:break-word;}.tbl-n{max-width:20px;}strong{word-break:break-word;}}
+@media(max-width:768px){.tbl{font-size:.75rem;}.tbl th:nth-child(2),.tbl td:nth-child(2),.tbl th:nth-child(7),.tbl td:nth-child(7),.tbl th:nth-child(11),.tbl td:nth-child(11){display:none;}}@media(max-width:480px){.tbl{font-size:.7rem;}.tbl th,.tbl td{padding:.3rem .4rem;word-break:break-word;}.tbl-n{max-width:16px;}strong{word-break:break-word;}}
 .tbl tr:hover td{background:var(--bg);}.tbl tr:last-child td{border:none;}
 .tbl-n{font-family:'Syne',sans-serif;font-weight:700;color:var(--em);}
 .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;}
@@ -649,7 +649,7 @@ function finalizeDB() {
   const teams=[...new Set(Object.values(DB.players).map(p=>p.team))].filter(Boolean).sort();
   ['pl-team-filter','xi-team-filter'].forEach(id=>{const el=document.getElementById(id);if(!el)return;el.innerHTML='<option value="">All Teams</option>'+teams.map(t=>`<option value="${t}">${t}</option>`).join('');});
   const ts=document.getElementById('trend-sel');ts.innerHTML='<option value="">— Select a player —</option>';
-  Object.values(DB.players).forEach(p=>{const o=document.createElement('option');o.value=p.name;o.textContent=`${p.name} (${p.team}) — ${p.role}`;ts.appendChild(o);});
+  Object.values(DB.players).forEach(p=>{const o=document.createElement('option');o.value=p.name;o.textContent=`${p.name} · ${p.role[0]}`;ts.appendChild(o);});
 }
 function updateNavCount(){document.getElementById('nav-count').textContent=`${DB.matches.length} matches · ${Object.keys(DB.players).length} players`;}
 
