@@ -833,7 +833,18 @@ function updateMatchCard(){
 
   const buildXICard=(team,teamName)=>{
     if(!team.length)return'<div style="color:var(--muted);text-align:center;padding:2rem;font-size:.875rem">Select players</div>';
-    let html='<div style="font-family:\'Outfit\',sans-serif;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.15),0 0 0 1px rgba(16,185,129,.25);"><div class="xc-stripe"></div><div class="xc-hero"><div style="padding:24px 28px 18px;"><div class="xc-team" style="font-size:1.5rem;">'+teamName.toUpperCase()+'</div><div class="xc-sub">Playing XI</div></div></div><div class="xc-div"></div><div class="xc-body">';
+    const _date=document.getElementById('fi-date')?.value||'';
+    const _time=document.getElementById('fi-time')?.value||'';
+    const _venue=document.getElementById('fi-venue')?.value||'';
+    let metaHtml='';
+    if(_date||_time||_venue){
+      let parts=[];
+      if(_date){const d=new Date(_date+'T00:00:00');parts.push('📅 '+d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}));}
+      if(_time){const[h,m]=_time.split(':'),hr=+h,a=hr>=12?'PM':'AM',h12=hr%12||12;parts.push('🕐 '+h12+':'+m+' '+a);}
+      if(_venue)parts.push('📍 '+_venue);
+      metaHtml='<div style="margin-top:6px;font-size:.72rem;opacity:.8;color:#a3e8c8;line-height:1.6">'+parts.join('<br>')+'</div>';
+    }
+    let html='<div style="font-family:\'Outfit\',sans-serif;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.15),0 0 0 1px rgba(16,185,129,.25);"><div class="xc-stripe"></div><div class="xc-hero"><div style="padding:24px 28px 18px;"><div class="xc-team" style="font-size:1.5rem;">'+teamName.toUpperCase()+'</div><div class="xc-sub">Playing XI</div>'+metaHtml+'</div></div><div class="xc-div"></div><div class="xc-body">';
     html+=team.map((p,i)=>`<div class="xc-pr"><div class="xc-num">${i+1}</div><div style="flex:1"><div class="xc-pn">${p.name}</div><div class="xc-role">${p.role}</div></div><div class="xc-ps">${p.runs}R ${p.wickets}W</div></div>`).join('');
     html+='<div class="xc-foot"><div class="xc-fl">Cricket Analyzer</div></div></div></div>';
     return html;
