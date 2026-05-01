@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Cricket Analyzer — CricClubs</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -34,13 +37,13 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--em);}
 .kv{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--dark);line-height:1;}
 .kl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
-.tbl{width:100%;border-collapse:collapse;font-size:.875rem;}
-.tbl th{padding:.65rem .9rem;text-align:left;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--bg3);}
-.tbl td{padding:.7rem .9rem;border-bottom:1px solid var(--bg2);}
+.tbl{width:100%;border-collapse:collapse;font-size:.875rem;table-layout:auto;}
+.tbl th{padding:.65rem .9rem;text-align:left;font-size:.68rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--bg3);white-space:nowrap;}
+.tbl td{padding:.7rem .9rem;border-bottom:1px solid var(--bg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 @media(max-width:768px){.tbl{font-size:.75rem;}#players .tbl th:nth-child(2),#players .tbl th:nth-child(7),#pl-tbody tr td:nth-child(2),#pl-tbody tr td:nth-child(7){display:none;}}@media(max-width:480px){.tbl{font-size:.7rem;}.tbl th,.tbl td{padding:.3rem .4rem;word-break:break-word;}.tbl-n{max-width:16px;}strong{word-break:break-word;}}
 .tbl tr:hover td{background:var(--bg);}.tbl tr:last-child td{border:none;}
 .tbl-n{font-family:'Syne',sans-serif;font-weight:700;color:var(--em);}
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600;white-space:nowrap;}
 .b-bat{background:#d1fae5;color:#065f46;}.b-bowl{background:#fee2e2;color:#991b1b;}.b-ar{background:#fef3c7;color:#92400e;}
 .b-hot{background:#fee2e2;color:#dc2626;}.b-stable{background:#f3f4f6;color:#6b7280;}.b-cold{background:#dbeafe;color:#1e40af;}
 .b-pp{background:#fef3c7;color:#b45309;}.b-death{background:#fee2e2;color:#b91c1c;}.b-mid{background:#dbeafe;color:#1d4ed8;}.b-w{background:#ecfdf5;color:#065f46;}
