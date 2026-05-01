@@ -158,8 +158,8 @@ code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;fon
   <div id="db-content" style="display:none;">
     <div class="kpi-row" id="kpi-row"></div>
     <div class="g2">
-      <div class="card"><div class="card-title">🏏 Top Run Scorers</div><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Runs</th><th>Mat</th><th>SR</th><th>Form</th></tr></thead><tbody id="db-bat"></tbody></table></div>
-      <div class="card"><div class="card-title">🎯 Top Wicket Takers</div><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Wkts</th><th>Econ</th><th>Phase</th><th>Form</th></tr></thead><tbody id="db-bowl"></tbody></table></div>
+      <div class="card"><div class="card-title">🏏 Top Run Scorers</div><div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Runs</th><th>Mat</th><th>SR</th><th>Form</th></tr></thead><tbody id="db-bat"></tbody></table></div></div>
+      <div class="card"><div class="card-title">🎯 Top Wicket Takers</div><div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table class="tbl"><thead><tr><th>#</th><th>Player</th><th>Team</th><th>Wkts</th><th>Econ</th><th>Phase</th><th>Form</th></tr></thead><tbody id="db-bowl"></tbody></table></div></div>
     </div>
     <div class="g3">
       <div class="card"><div class="card-title">⚡ Powerplay Specialists</div><table class="tbl"><thead><tr><th>Player</th><th>PP Avg</th></tr></thead><tbody id="db-pp"></tbody></table></div>
@@ -181,7 +181,7 @@ code{font-size:.8rem;background:var(--bg2);padding:2px 6px;border-radius:4px;fon
         <select class="sel" onchange="filterPlayers()"><option value="">All Form</option><option value="hot">🔥 Hot</option><option value="stable">➡️ Stable</option><option value="cold">❄️ Cold</option></select>
         <select class="sel" id="pl-team-filter" onchange="filterPlayers()"><option value="">All Teams</option></select>
       </div>
-      <table class="tbl"><thead><tr><th>Player</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Catches</th><th>Mat</th><th>SR</th><th>Econ</th><th>PP Avg</th><th>Form</th></tr></thead><tbody id="pl-tbody"></tbody></table>
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table class="tbl"><thead><tr><th>Player</th><th>Team</th><th>Role</th><th>Runs</th><th>Wkts</th><th>Catches</th><th>Mat</th><th>SR</th><th>Econ</th><th>PP Avg</th><th>Form</th></tr></thead><tbody id="pl-tbody"></tbody></table></div>
     </div>
   </div>
 </div>
@@ -753,9 +753,9 @@ function renderTeamSplitResult(){
     const totalWkts=team.reduce((s,p)=>s+p.wickets,0);
     const avgSR=team.filter(p=>p.runs>0).length>0?fmt1(team.filter(p=>p.runs>0).reduce((s,p)=>s+p.strike_rate,0)/team.filter(p=>p.runs>0).length):0;
     const avgEcon=team.filter(p=>p.wickets>0).length>0?fmt2(team.filter(p=>p.wickets>0).reduce((s,p)=>s+p.economy,0)/team.filter(p=>p.wickets>0).length):0;
-    return`<div class="card"><div class="card-title">${label}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1rem"><div class="kpi"><div class="kv">${perTeam}</div><div class="kl">Players</div></div><div class="kpi"><div class="kv">${totalRuns}</div><div class="kl">Total Runs</div></div><div class="kpi"><div class="kv">${totalWkts}</div><div class="kl">Total Wkts</div></div><div class="kpi"><div class="kv">${avgSR}</div><div class="kl">Avg SR</div></div></div><div style="font-size:.8rem;color:var(--muted);margin-bottom:1rem"><strong>Roles:</strong> ${roles.Batsman}B · ${roles.Bowler}Bo · ${roles['All-Rounder']}AR</div><div style="max-height:250px;overflow-y:auto"><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Players</div>${team.map((p,i)=>`<div style="padding:.4rem;background:var(--bg);border-radius:6px;margin-bottom:.3rem;font-size:.85rem"><strong>${i+1}. ${p.name}</strong> <span style="color:var(--muted)">${p.role}</span></div>`).join('')}</div></div>`;
+    return`<div class="card"><div class="card-title">${label}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1rem"><div class="kpi"><div class="kv">${perTeam}</div><div class="kl">Players</div></div><div class="kpi"><div class="kv">${totalRuns}</div><div class="kl">Total Runs</div></div><div class="kpi"><div class="kv">${totalWkts}</div><div class="kl">Total Wkts</div></div><div class="kpi"><div class="kv">${avgSR}</div><div class="kl">Avg SR</div></div></div><div style="font-size:.8rem;color:var(--muted);margin-bottom:1rem"><strong>Roles:</strong> ${roles.Batsman}B · ${roles.Bowler}Bo · ${roles['All-Rounder']}AR</div><div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Players</div>${team.map((p,i)=>`<div style="padding:.4rem;background:var(--bg);border-radius:6px;margin-bottom:.3rem;font-size:.85rem"><strong>${i+1}. ${p.name}</strong> <span style="color:var(--muted)">${p.role}</span></div>`).join('')}</div></div>`;
   };
-  document.getElementById('ts-input').innerHTML=`<div class="card"><div class="card-title">✅ Team Split Generated!</div><button class="btn btn-ghost" onclick="resetTeamSplit()">← Back to Selection</button></div>`;
+  document.getElementById('ts-input').innerHTML=`<div class="card"><div class="card-title">✅ Team Split Generated!</div><div style="display:flex;gap:.75rem;flex-wrap:wrap"><button class="btn btn-ghost" onclick="resetTeamSplit()">← Back to Selection</button><button class="btn btn-em" onclick="goToMatchCardFromSplit()">🖨 Create Match Card →</button></div></div>`;
   document.getElementById('ts-output').innerHTML=`<div class="g2">${card(splitTeamA,'🏆 Team A ('+splitTeamA.length+')')}${card(splitTeamB,'🏆 Team B ('+splitTeamB.length+')')}</div>`;
 }
 function toggleSplitPlayer(name){
@@ -805,9 +805,17 @@ function generateSmartOrder(){if(!selectedXI.length){alert('Select players first
 // MATCH CARD
 // ════════════════════════════════════════════
 let mcTeamA=[], mcTeamB=[];
+function goToMatchCardFromSplit(){
+  mcTeamA=[...splitTeamA];
+  mcTeamB=[...splitTeamB];
+  goTabByName('matchcard');
+}
 function renderMatchCard(){
   if(!showContent('mc'))return;
-  mcTeamA=[];mcTeamB=[];
+  if(!mcTeamA.length&&!mcTeamB.length&&splitTeamA.length){
+    mcTeamA=[...splitTeamA];
+    mcTeamB=[...splitTeamB];
+  }
   updateMatchCard();
 }
 function updateMatchCard(){
