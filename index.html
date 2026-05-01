@@ -638,11 +638,15 @@ function initPlayer(name, team) {
   DB.players[name]={name,team,role:'Batsman',runs:0,balls_faced:0,fours:0,sixes:0,matches_batted:0,matches_bowled:0,matches_played:0,wickets:0,overs_bowled:0,maidens:0,runs_conceded:0,catches:0,wk_catches:0,runouts:0,powerplay_runs:0,powerplay_matches:0,death_wickets:0,death_matches_bowled:0,match_log:[],last_5:[],form:'stable',over_spec:'—',strike_rate:0,economy:0,powerplay_avg:0};
 }
 function finalizeDB() {
+  console.log(`[DEBUG] finalizeDB() called. Players to process: ${Object.keys(DB.players).length}`);
   Object.values(DB.players).forEach(p => {
     p.matches_played=Math.max(p.matches_batted,p.matches_bowled);
     p.role=(p.matches_batted>0&&p.matches_bowled>0)?'All-Rounder':(p.matches_bowled>0)?'Bowler':'Batsman';
     p.strike_rate=p.balls_faced>0?parseFloat(((p.runs/p.balls_faced)*100).toFixed(1)):0;
     p.economy=p.overs_bowled>0?parseFloat((p.runs_conceded/p.overs_bowled).toFixed(2)):0;
+    if(p.runs > 0 || p.wickets > 0) {
+      console.log(`[DEBUG] ${p.name}: runs=${p.runs}, balls=${p.balls_faced}, SR=${p.strike_rate} | wkts=${p.wickets}, overs=${p.overs_bowled}, econ=${p.economy}`);
+    }
     p.powerplay_avg=p.powerplay_matches>0?parseFloat((p.powerplay_runs/p.powerplay_matches).toFixed(2)):0;
     if (p.wickets>0) { if(p.economy<4.5&&p.wickets>3)p.over_spec='Powerplay'; else if(p.death_wickets/p.wickets>=0.35)p.over_spec='Death'; else p.over_spec='Middle'; }
     const seen={},merged=[];
