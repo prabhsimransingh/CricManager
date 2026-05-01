@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>Cricket Analyzer — CricClubs</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -444,18 +441,11 @@ function parseOneCSV(csv, fname) {
 
   const deferred=[];
   // Parse sections
-  console.log(`[DEBUG] Found ${sections.length} sections in ${fname}:`, sections.map(s => `${s.team} ${s.type}`));
   sections.forEach((sec,si) => {
     const end = si+1<sections.length ? sections[si+1].i : lines.length;
     const slines = lines.slice(sec.i+1, end);
-    const lineCount = slines.length;
-    if(sec.type==='bat') {
-      console.log(`[DEBUG] Parsing ${sec.team} batting (${lineCount} lines)`);
-      parseBatSec(slines,sec.team,date,winner,deferred);
-    } else {
-      console.log(`[DEBUG] Parsing ${sec.team} bowling (${lineCount} lines)`);
-      parseBowlSec(slines,sec.team,date);
-    }
+    if(sec.type==='bat') parseBatSec(slines,sec.team,date,winner,deferred);
+    else parseBowlSec(slines,sec.team,date);
   });
 
   // Resolve fielding
@@ -638,15 +628,11 @@ function initPlayer(name, team) {
   DB.players[name]={name,team,role:'Batsman',runs:0,balls_faced:0,fours:0,sixes:0,matches_batted:0,matches_bowled:0,matches_played:0,wickets:0,overs_bowled:0,maidens:0,runs_conceded:0,catches:0,wk_catches:0,runouts:0,powerplay_runs:0,powerplay_matches:0,death_wickets:0,death_matches_bowled:0,match_log:[],last_5:[],form:'stable',over_spec:'—',strike_rate:0,economy:0,powerplay_avg:0};
 }
 function finalizeDB() {
-  console.log(`[DEBUG] finalizeDB() called. Players to process: ${Object.keys(DB.players).length}`);
   Object.values(DB.players).forEach(p => {
     p.matches_played=Math.max(p.matches_batted,p.matches_bowled);
     p.role=(p.matches_batted>0&&p.matches_bowled>0)?'All-Rounder':(p.matches_bowled>0)?'Bowler':'Batsman';
     p.strike_rate=p.balls_faced>0?parseFloat(((p.runs/p.balls_faced)*100).toFixed(1)):0;
     p.economy=p.overs_bowled>0?parseFloat((p.runs_conceded/p.overs_bowled).toFixed(2)):0;
-    if(p.runs > 0 || p.wickets > 0) {
-      console.log(`[DEBUG] ${p.name}: runs=${p.runs}, balls=${p.balls_faced}, SR=${p.strike_rate} | wkts=${p.wickets}, overs=${p.overs_bowled}, econ=${p.economy}`);
-    }
     p.powerplay_avg=p.powerplay_matches>0?parseFloat((p.powerplay_runs/p.powerplay_matches).toFixed(2)):0;
     if (p.wickets>0) { if(p.economy<4.5&&p.wickets>3)p.over_spec='Powerplay'; else if(p.death_wickets/p.wickets>=0.35)p.over_spec='Death'; else p.over_spec='Middle'; }
     const seen={},merged=[];
@@ -952,38 +938,25 @@ async function loadCommunityData() {
 
     // Load and parse each CSV
     let loadedCount = 0;
-    console.log(`[DEBUG] Attempting to load ${csvFiles.length} CSV files:`, csvFiles);
     for (const file of csvFiles) {
       try {
-        // Always fetch from GitHub raw content (works everywhere)
-        const url=`https://raw.githubusercontent.com/prabhsimransingh/CricManager/main/data/${file}`;
-        const csvResponse = await fetch(url);
+        const csvResponse = await fetch(`https://raw.githubusercontent.com/prabhsimransingh/CricManager/main/data/${file}`);
         if (!csvResponse.ok) {
-          console.warn(`[DEBUG] GitHub fetch failed for ${file} (${csvResponse.status}), trying local...`);
-          // Try local fallback
           const localResponse = await fetch(`./data/${file}`);
-          if (!localResponse.ok) {
-            console.warn(`[DEBUG] Local fetch also failed for ${file}`);
-            continue;
-          }
-          const csvData = await localResponse.text();
-          parseOneCSV(csvData, file);
+          if (!localResponse.ok) continue;
+          parseOneCSV(await localResponse.text(), file);
         } else {
-          const csvData = await csvResponse.text();
-          parseOneCSV(csvData, file);
+          parseOneCSV(await csvResponse.text(), file);
         }
         loadedCount++;
-        console.log(`[DEBUG] Loaded ${file} - Total: ${loadedCount}`);
       } catch (err) {
-        console.warn(`[DEBUG] Exception loading ${file}:`, err);
+        console.warn(`Failed to load ${file}:`, err);
       }
     }
 
-    console.log(`[DEBUG] Total loaded: ${loadedCount}, Players in DB: ${Object.keys(DB.players).length}`);
     if (loadedCount > 0) {
       log(`✅ Loaded ${loadedCount} community scorecard(s)`);
       finalizeDB();
-      console.log(`[DEBUG] After finalizeDB - Players: ${Object.keys(DB.players).length}, Partnerships: ${DB.partnerships.length}`);
     }
     // Cache community data so subsequent visits load instantly from localStorage
     // Always refresh _cachedAt so even a 24h re-check that finds no new data resets the timer
