@@ -660,7 +660,7 @@ function goTab(id,btn){document.querySelectorAll('.page').forEach(p=>p.classList
 function goTabByName(id){const m={upload:0,dashboard:1,players:2,trends:3,partnerships:4,teamsplit:5,xi:6,matchcard:7};goTab(id,document.querySelectorAll('.ntab')[m[id]||0]);}
 function toggleMobileMenu(){const nav=document.querySelector('.nav-tabs');nav.classList.toggle('mobile-open');}
 function closeMobileMenu(){const nav=document.querySelector('.nav-tabs');nav.classList.remove('mobile-open');}
-function goPlayerTrend(name){goTabByName('trends');setTimeout(()=>{const sel=document.getElementById('trend-sel');if(sel){sel.value=name;loadTrends();}},100);}
+function goPlayerTrend(name){goTabByName('trends');setTimeout(()=>{const sel=document.getElementById('trend-sel');if(sel&&sel.options.length>1){sel.value=name;loadTrends();}else{setTimeout(()=>{const s=document.getElementById('trend-sel');if(s){s.value=name;loadTrends();}},300);}},100);}
 const fmt1=v=>(+(v||0)).toFixed(1),fmt2=v=>(+(v||0)).toFixed(2);
 const allP=()=>Object.values(DB.players);
 function rbadge(r){return`<span class="badge ${{Batsman:'b-bat',Bowler:'b-bowl','All-Rounder':'b-ar'}[r]||'b-bat'}">${r}</span>`;}
