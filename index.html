@@ -99,8 +99,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .xc-pr{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
 .xc-pr:last-child{border:none;}
 .xc-num{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:rgba(16,185,129,.3);width:18px;text-align:right;flex-shrink:0;}
-.xc-pn{font-weight:600;font-size:.87rem;color:#fff;flex:1;}.xc-role{font-size:.62rem;color:rgba(255,255,255,.3);}
-.xc-ps{font-size:.68rem;color:rgba(255,255,255,.35);white-space:nowrap;}
+.xc-pn{font-weight:700;font-size:1rem;color:#fff;flex:1;letter-spacing:.01em;}.xc-role{font-size:.68rem;color:rgba(255,255,255,.4);}
+.xc-ps{font-size:.72rem;color:rgba(255,255,255,.4);white-space:nowrap;}
 .xc-foot{margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;align-items:center;}
 .xc-fl{font-size:.6rem;color:rgba(255,255,255,.18);letter-spacing:1px;}
 .xc-badge{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.25);border-radius:20px;padding:2px 10px;font-size:.6rem;color:var(--em);letter-spacing:1px;}
@@ -860,7 +860,7 @@ function toggleMCPlayer(team,name){
   const list=team==='a'?mcTeamA:mcTeamB;
   const idx=list.findIndex(p=>p.name===name);
   if(idx>=0)list.splice(idx,1);
-  else{if(list.length>=11){alert('Max 11 players');return;}const p=DB.players[name];if(p)list.push(p);}
+  else{const p=DB.players[name];if(p)list.push(p);}
   updateMatchCard();
 }
 function copyXIText(){
