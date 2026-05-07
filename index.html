@@ -890,6 +890,24 @@ function copyXIText(){
 }
 
 // Load community CSV files from /data/ directory
+// Hardcoded fallback — guaranteed to work even when GitHub API is rate-limited (60 req/hr limit)
+const COMMUNITY_FILES = [
+  '2026-02-01-clinical-vs-surgical.csv',
+  '2026-02-06-board-of-peace-vs-leg-piece-corps.csv',
+  '2026-02-06-counting-balls-vs-step-count.csv',
+  '2026-02-07-pioneers-vs-pitchers.csv',
+  '2026-02-08-strict-management-vs-strictly-teacher-pet.csv',
+  '2026-02-13-kashmir-files-vs-karnataka-lies.csv',
+  '2026-03-06-peaceful-power-hitters-vs-super-over-survivors.csv',
+  '2026-03-14-kanyadan-knight-riders-vs-saptapadi-super-kings.csv',
+  '2026-03-20-in-law-vs-outlaw.csv',
+  '2026-03-21-epic-blunder-vs-epic-fury.csv',
+  '2026-03-29-sikandar-vs-dhurandhar.csv',
+  '2026-04-04-bye-patient-vs-hello-doctor.csv',
+  '2026-04-18-founding-fathers-vs-pounding-pandits.csv',
+  '2026-04-26-ai-vs-ml.csv',
+];
+
 async function loadCommunityData() {
   try {
     let csvFiles = [];
@@ -918,13 +936,13 @@ async function loadCommunityData() {
             .map(f => f.name);
         }
       } catch (err) {
-        // GitHub API also failed, continue silently
+        // GitHub API also failed, fall through to hardcoded list
       }
     }
 
+    // Last resort: hardcoded list — no API needed, always loads data
     if (csvFiles.length === 0) {
-      console.log('No community scorecards found');
-      return;
+      csvFiles = COMMUNITY_FILES;
     }
 
     // Load and parse each CSV
