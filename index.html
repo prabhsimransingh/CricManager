@@ -845,7 +845,7 @@ function updateMatchCard(){
       metaHtml='<div style="margin-top:6px;font-size:.72rem;opacity:.8;color:#a3e8c8;line-height:1.6">'+parts.join('<br>')+'</div>';
     }
     let html='<div style="font-family:\'Outfit\',sans-serif;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.15),0 0 0 1px rgba(16,185,129,.25);"><div class="xc-stripe"></div><div class="xc-hero"><div style="padding:24px 28px 18px;"><div class="xc-team" style="font-size:1.5rem;">'+teamName.toUpperCase()+'</div><div class="xc-sub">Playing XI</div>'+metaHtml+'</div></div><div class="xc-div"></div><div class="xc-body">';
-    html+=team.map((p,i)=>`<div class="xc-pr"><div class="xc-num">${i+1}</div><div style="flex:1"><div class="xc-pn">${p.name}</div><div class="xc-role">${p.role}</div></div><div class="xc-ps">${p.runs}R ${p.wickets}W</div></div>`).join('');
+    html+=team.map((p,i)=>{const ct=p.catches+p.wk_catches;const stats=[p.runs?`${p.runs}R`:'',p.wickets?`${p.wickets}W`:'',ct?`${ct}${p.wk_catches?'🧤':''}C`:'',p.runouts?`${p.runouts}RO`:''].filter(Boolean).join(' ')||'—';return`<div class="xc-pr"><div class="xc-num">${i+1}</div><div style="flex:1"><div class="xc-pn">${p.name}</div><div class="xc-role">${p.role}</div></div><div class="xc-ps">${stats}</div></div>`;}).join('');
     html+='<div class="xc-foot"><div class="xc-fl">Cricket Analyzer</div></div></div></div>';
     return html;
   };
