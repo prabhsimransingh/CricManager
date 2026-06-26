@@ -623,7 +623,8 @@ function initPlayer(name, team) {
 function finalizeDB() {
   Object.values(DB.players).forEach(p => {
     p.matches_played=Math.max(p.matches_batted,p.matches_bowled);
-    p.role=(p.matches_batted>0&&p.matches_bowled>0)?'All-Rounder':(p.matches_bowled>0)?'Bowler':'Batsman';
+    const hasBowled=p.matches_bowled>0||p.wickets>0||p.overs_bowled>0;
+    p.role=(p.matches_batted>0&&hasBowled)?'All-Rounder':hasBowled?'Bowler':'Batsman';
     p.strike_rate=p.balls_faced>0?parseFloat(((p.runs/p.balls_faced)*100).toFixed(1)):0;
     p.economy=p.overs_bowled>0?parseFloat((p.runs_conceded/p.overs_bowled).toFixed(2)):0;
     p.powerplay_avg=p.powerplay_matches>0?parseFloat((p.powerplay_runs/p.powerplay_matches).toFixed(2)):0;
