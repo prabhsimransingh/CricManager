@@ -728,6 +728,25 @@ function renderPartnerships(){
 // ════════════════════════════════════════════
 let splitSelection=[];
 let splitTeamA=[], splitTeamB=[];
+function _lev(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);return dp[m][n];}
+function matchNamesFromText(){
+  const raw=document.getElementById('name-paste-box')?.value||'';
+  const inputs=raw.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+  if(!inputs.length)return;
+  const all=Object.values(DB.players);
+  const matched=[],unmatched=[];
+  inputs.forEach(inp=>{
+    const lo=inp.toLowerCase();
+    let found=all.find(p=>p.name.toLowerCase()===lo);
+    if(!found){let best=null,bestD=Infinity;all.forEach(p=>{const d=_lev(lo,p.name.toLowerCase());if(d<bestD){bestD=d;best=p;}});const thresh=Math.max(2,Math.floor(inp.length*.35));if(best&&bestD<=thresh)found=best;}
+    if(found){if(!splitSelection.find(x=>x.name===found.name))splitSelection.push(found);matched.push(inp+(inp.toLowerCase()!==found.name.toLowerCase()?'→'+found.name:''));}
+    else unmatched.push(inp);
+  });
+  const msg=(matched.length?'✅ '+matched.join(', '):'')+((unmatched.length?(matched.length?' · ':'')+('❌ No match: '+unmatched.join(', ')):''));
+  renderTeamSplit();
+  const box=document.getElementById('name-paste-box');if(box)box.value=raw;
+  const fb=document.getElementById('match-feedback');if(fb)fb.textContent=msg;
+}
 function renderTeamSplit(){
   if(!showContent('ts'))return;
   const allPlayers=Object.values(DB.players);
@@ -735,7 +754,7 @@ function renderTeamSplit(){
     renderTeamSplitResult();
     return;
   }
-  document.getElementById('ts-input').innerHTML=`<div class="card"><div class="card-title">1️⃣ Select Players for Team Split</div><div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap"><label style="flex:1;min-width:150px"><strong>Selected: ${splitSelection.length}</strong></label><button class="btn btn-em" style="font-size:.8rem;padding:.5rem 1rem" onclick="selectAllPlayers(22)">Select 22</button><button class="btn btn-em" style="font-size:.8rem;padding:.5rem 1rem" onclick="selectAllPlayers(24)">Select 24</button><button class="btn btn-em" style="font-size:.8rem;padding:.5rem 1rem" onclick="selectAllPlayers(26)">Select 26</button><button class="btn btn-ghost" style="font-size:.8rem;padding:.5rem 1rem" onclick="clearSelection()">Clear</button></div><div style="margin-bottom:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem;max-height:400px;overflow-y:auto;">${allPlayers.map(p=>{const sel=!!splitSelection.find(x=>x.name===p.name);return`<div class="pchip ${sel?'sel':''}" onclick="toggleSplitPlayer('${p.name.replace(/'/g,"\\'")}')"><div><div class="chip-n">${p.name}</div><div class="chip-s">${p.role} · ${p.runs}R ${p.wickets}W</div></div><div class="chk">✓</div></div>`;}).join('')}</div></div>`;
+  document.getElementById('ts-input').innerHTML=`<div class="card"><div class="card-title">1️⃣ Select Players for Team Split</div><div style="margin-bottom:1rem"><textarea id="name-paste-box" class="inp" rows="3" placeholder="Paste names here (one per line or comma-separated) — spelling mistakes OK" style="width:100%;resize:vertical;font-size:.85rem"></textarea><div style="display:flex;gap:.5rem;margin-top:.5rem;align-items:center"><button class="btn btn-em" style="font-size:.8rem;padding:.4rem .9rem" onclick="matchNamesFromText()">Match & Select</button><div id="match-feedback" style="font-size:.75rem;color:var(--muted);flex:1"></div></div></div><div style="display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap"><label style="flex:1;min-width:150px"><strong>Selected: ${splitSelection.length}</strong></label><button class="btn btn-em" style="font-size:.8rem;padding:.5rem 1rem" onclick="selectAllPlayers(22)">Select 22</button><button class="btn btn-em" style="font-size:.8rem;padding:.5rem 1rem" onclick="selectAllPlayers(24)">Select 24</button><button class="btn btn-em" style="font-size:.8rem;padding:.5rem 1rem" onclick="selectAllPlayers(26)">Select 26</button><button class="btn btn-ghost" style="font-size:.8rem;padding:.5rem 1rem" onclick="clearSelection()">Clear</button></div><div style="margin-bottom:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.5rem;max-height:400px;overflow-y:auto;">${allPlayers.map(p=>{const sel=!!splitSelection.find(x=>x.name===p.name);return`<div class="pchip ${sel?'sel':''}" onclick="toggleSplitPlayer('${p.name.replace(/'/g,"\\'")}')"><div><div class="chip-n">${p.name}</div><div class="chip-s">${p.role} · ${p.runs}R ${p.wickets}W</div></div><div class="chk">✓</div></div>`;}).join('')}</div></div>`;
   let outputHTML='';
   if(splitSelection.length>0){
     outputHTML=`<div class="card"><div class="card-title">Selected Players (${splitSelection.length})</div><div style="margin-bottom:1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.5rem">${splitSelection.map(p=>`<div style="padding:.5rem;background:var(--bg);border-radius:8px;font-size:.8rem"><strong>${p.name}</strong><div style="color:var(--muted)">${p.role}</div></div>`).join('')}</div><button class="btn btn-em" style="width:100%" onclick="generateTeamSplit()">2️⃣ Generate Split (Team A vs Team B)</button></div>`;
