@@ -791,18 +791,29 @@ function renderTeamSplitResult(){
   document.getElementById('ts-input').innerHTML=`<div class="card"><div class="card-title">✅ Team Split Generated!</div><div style="display:flex;gap:.75rem;flex-wrap:wrap"><button class="btn btn-ghost" onclick="resetTeamSplit()">← Back to Selection</button><button class="btn btn-em" onclick="suggestNamesAndCaptains()">🤖 Suggest Names & Captains</button><button class="btn btn-em" onclick="goToMatchCardFromSplit()">🖨 Create Match Card →</button></div></div>`;
   document.getElementById('ts-output').innerHTML=`<div class="g2">${card(splitTeamA,'🏆 Team A ('+splitTeamA.length+')','a')}${card(splitTeamB,'🏆 Team B ('+splitTeamB.length+')','b')}</div><div id="split-suggestions"></div>`;
 }
+function getCaptainHistory(){try{return JSON.parse(localStorage.getItem('cricket-cap-history')||'[]');}catch{return[];}}
+function saveCaptainToHistory(name){if(!name)return;const h=getCaptainHistory();h.push({name,date:new Date().toISOString().split('T')[0]});localStorage.setItem('cricket-cap-history',JSON.stringify(h.slice(-100)));}
+let _lastSuggestedCaps={a:null,b:null};
 function suggestNamesAndCaptains(){
   const histNames=[...new Set(Object.values(DB.players).map(p=>p.team))].filter(Boolean);
   const h=histNames.join(' ').toLowerCase();
-  const sc=p=>p.runs*.4+p.wickets*15+(p.form==='hot'?40:p.form==='cold'?-20:0);
+  // Captain rotation scoring
+  const capHist=getCaptainHistory();
+  const lastIdx={};capHist.forEach((e,i)=>lastIdx[e.name]=i);
+  const matchesAgo=name=>lastIdx[name]!==undefined?capHist.length-1-lastIdx[name]:Infinity;
+  const rotBonus=p=>{const ago=matchesAgo(p.name);if(ago===Infinity)return 60;if(ago>=4)return 40;if(ago>=2)return 20;return 0;};
+  const capLabel=p=>{const ago=matchesAgo(p.name);if(ago===Infinity)return'<span style="color:var(--em);font-size:.75rem">🌟 Never captained</span>';if(ago>=4)return`<span style="color:var(--amber);font-size:.75rem">↻ Due for rotation (${ago} matches ago)</span>`;return`<span style="color:var(--muted);font-size:.75rem">Last captained ${ago} match${ago>1?'es':''} ago</span>`;};
+  const sc=p=>p.runs*.4+p.wickets*15+(p.form==='hot'?30:p.form==='cold'?-20:0)+rotBonus(p);
   const capA=[...splitTeamA].sort((a,b)=>sc(b)-sc(a))[0];
   const capB=[...splitTeamB].sort((a,b)=>sc(b)-sc(a))[0];
+  _lastSuggestedCaps={a:capA?.name,b:capB?.name};
+  // Theme detection
   const isIPL=/kings|riders|warriors|titans|giants|capitals|super|royal/.test(h);
   const isBolly=/lagaan|sholay|sikandar|gabbar|dilwale|bahubali|kashmir|karnataka|kanya|sapta/.test(h);
   const isWork=/management|teacher|doctor|patient|office|clinical|surgical|strict|founding|peace|pioneer/.test(h);
   const puns=[['Spin Doctors','Win Rockers'],['Hat Trick Heroes','Flat Pitch Zeros'],['Pitch Invaders','Ditch Evaders'],['Run Machine','Done Routine'],['Yorker Force','Talker Remorse'],['Six Appeal','Trick Ordeal'],['Caught Behind','Thought Aligned'],['Maiden Overs','Maiden Movers'],['No Ball Callers','Go All Hailers'],['Bouncer Boys','Counter Joys'],['Duck & Cover','Luck & Hover'],['Power Surge','Tower Merge']];
   const ipl=[['Chai Kings','Bye Kings'],['Boundary Blasters','Boundary Busters'],['Spin Sultans','Slog Sultans'],['Desi Daredevils','Khesi Mavericks'],['Bolly Warriors','Jolly Terrors'],['Masala Mighty','Tadka Nighty']];
-  const bolly=[['Sikandar Strikers','Dhurandhar Divers'],['Lagaan Lions','Dugaan Giants'],['Sholay Shooters','Bolay Booters'],['Bahubali Batters','Bahudari Bladders'],['Don\'t Panic','Font Satanic'],['Gabbar XI','Jabbar XI']];
+  const bolly=[['Sikandar Strikers','Dhurandhar Divers'],['Lagaan Lions','Dugaan Giants'],['Sholay Shooters','Bolay Booters'],['Bahubali Batters','Bahudari Bladders'],["Don't Panic",'Font Satanic'],['Gabbar XI','Jabbar XI']];
   const work=[['Deadline Warriors','Lifeline Worriers'],['Boss Battles','Toss Rattles'],['Zoom Boomers','Room Groomers'],['Offshore Rangers','More Shore Changers'],['Sprint Review','Lint Preview'],['Excel Warriors','Outlook Survivors']];
   let pool=isBolly?bolly:isWork?work:isIPL?ipl:puns;
   if(pool.length<3)pool=[...pool,...puns];
@@ -810,9 +821,12 @@ function suggestNamesAndCaptains(){
   const suggestions=[...pool].sort(()=>Math.random()-.5).slice(0,3);
   const div=document.getElementById('split-suggestions');
   if(!div)return;
-  div.innerHTML=`<div class="card" style="margin-top:1rem"><div class="card-title">🤖 AI Suggestions</div><div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Theme detected from ${histNames.length} past teams: <strong>${theme}</strong></div><div style="margin-bottom:1rem"><div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.5rem">⭐ Captains</div>${capA?`<div style="margin-bottom:.3rem;font-size:.875rem">Team A → <strong>${capA.name}</strong> <span style="color:var(--muted)">${capA.runs}R ${capA.wickets}W · ${capA.form}</span></div>`:''}${capB?`<div style="font-size:.875rem">Team B → <strong>${capB.name}</strong> <span style="color:var(--muted)">${capB.runs}R ${capB.wickets}W · ${capB.form}</span></div>`:''}</div><div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.5rem">🏷 Name Suggestions — tap to apply & go to Match Card</div>${suggestions.map(([a,b])=>`<div onclick="applyTeamNames('${a.replace(/'/g,"\\'")}','${b.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:var(--bg);border-radius:8px;margin-bottom:.4rem;cursor:pointer;border:1px solid var(--border);transition:border-color .15s" onmouseover="this.style.borderColor='var(--em)'" onmouseout="this.style.borderColor='var(--border)'"><span style="flex:1;font-size:.85rem"><strong>${a}</strong> vs <strong>${b}</strong></span><span style="color:var(--em);font-size:.8rem">Apply →</span></div>`).join('')}<div style="font-size:.72rem;color:var(--muted);margin-top:.5rem">Past teams: ${histNames.slice(0,8).join(' · ')}${histNames.length>8?'…':''}</div></div>`;
+  const capCard=(p,label)=>p?`<div style="margin-bottom:.5rem;padding:.5rem .75rem;background:var(--bg);border-radius:8px"><div style="font-size:.8rem;color:var(--muted);margin-bottom:.2rem">${label}</div><div style="font-size:.9rem"><strong>${p.name}</strong> <span style="color:var(--muted)">${p.runs}R ${p.wickets}W · ${p.form}</span></div>${capLabel(p)}</div>`:'';
+  div.innerHTML=`<div class="card" style="margin-top:1rem"><div class="card-title">🤖 AI Suggestions</div><div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Theme: <strong>${theme}</strong> · ${capHist.length} captaincy records</div><div style="margin-bottom:1rem"><div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.5rem">⭐ Captains (rotation-aware)</div>${capCard(capA,'Team A')}${capCard(capB,'Team B')}</div><div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.5rem">🏷 Name Suggestions — tap to apply</div>${suggestions.map(([a,b])=>`<div onclick="applyTeamNames('${a.replace(/'/g,"\\'")}','${b.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:var(--bg);border-radius:8px;margin-bottom:.4rem;cursor:pointer;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--em)'" onmouseout="this.style.borderColor='var(--border)'"><span style="flex:1;font-size:.85rem"><strong>${a}</strong> vs <strong>${b}</strong></span><span style="color:var(--em);font-size:.8rem">Apply →</span></div>`).join('')}<div style="font-size:.72rem;color:var(--muted);margin-top:.5rem">Past teams: ${histNames.slice(0,8).join(' · ')}${histNames.length>8?'…':''}</div></div>`;
 }
 function applyTeamNames(a,b){
+  saveCaptainToHistory(_lastSuggestedCaps.a);
+  saveCaptainToHistory(_lastSuggestedCaps.b);
   const ia=document.getElementById('mc-team-a'),ib=document.getElementById('mc-team-b');
   if(ia){ia.value=a;ia.dispatchEvent(new Event('input'));}
   if(ib){ib.value=b;ib.dispatchEvent(new Event('input'));}
