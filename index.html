@@ -769,19 +769,25 @@ function renderTeamSplit(){
   }
   document.getElementById('ts-output').innerHTML=outputHTML;
 }
+function swapPlayer(name,from){
+  if(from==='a'){const idx=splitTeamA.findIndex(p=>p.name===name);if(idx>=0)splitTeamB.push(splitTeamA.splice(idx,1)[0]);}
+  else{const idx=splitTeamB.findIndex(p=>p.name===name);if(idx>=0)splitTeamA.push(splitTeamB.splice(idx,1)[0]);}
+  renderTeamSplitResult();
+}
 function renderTeamSplitResult(){
-  const perTeam=Math.floor((splitTeamA.length+splitTeamB.length)/2);
-  const card=(team,label)=>{
+  const card=(team,label,side)=>{
     const roles={Batsman:0,Bowler:0,'All-Rounder':0};
     team.forEach(p=>roles[p.role]++);
     const totalRuns=team.reduce((s,p)=>s+p.runs,0);
     const totalWkts=team.reduce((s,p)=>s+p.wickets,0);
-    const avgSR=team.filter(p=>p.runs>0).length>0?fmt1(team.filter(p=>p.runs>0).reduce((s,p)=>s+p.strike_rate,0)/team.filter(p=>p.runs>0).length):0;
-    const avgEcon=team.filter(p=>p.wickets>0).length>0?fmt2(team.filter(p=>p.wickets>0).reduce((s,p)=>s+p.economy,0)/team.filter(p=>p.wickets>0).length):0;
-    return`<div class="card"><div class="card-title">${label}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1rem"><div class="kpi"><div class="kv">${perTeam}</div><div class="kl">Players</div></div><div class="kpi"><div class="kv">${totalRuns}</div><div class="kl">Total Runs</div></div><div class="kpi"><div class="kv">${totalWkts}</div><div class="kl">Total Wkts</div></div><div class="kpi"><div class="kv">${avgSR}</div><div class="kl">Avg SR</div></div></div><div style="font-size:.8rem;color:var(--muted);margin-bottom:1rem"><strong>Roles:</strong> ${roles.Batsman}B · ${roles.Bowler}Bo · ${roles['All-Rounder']}AR</div><div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Players</div>${team.map((p,i)=>`<div style="padding:.4rem;background:var(--bg);border-radius:6px;margin-bottom:.3rem;font-size:.85rem"><strong>${i+1}. ${p.name}</strong> <span style="color:var(--muted)">${p.role}</span></div>`).join('')}</div></div>`;
+    const batters=team.filter(p=>p.matches_batted>0);
+    const avgSR=batters.length>0?fmt1(batters.reduce((s,p)=>s+p.strike_rate,0)/batters.length):'—';
+    const arrow=side==='a'?'→':'←';
+    const players=team.map((p,i)=>`<div style="padding:.4rem .5rem;background:var(--bg);border-radius:6px;margin-bottom:.3rem;font-size:.85rem;display:flex;align-items:center;justify-content:space-between"><span><strong>${i+1}. ${p.name}</strong> <span style="color:var(--muted);font-size:.75rem">${p.role}</span></span><button onclick="swapPlayer('${p.name.replace(/'/g,"\\'")}','${side}')" style="background:none;border:1px solid var(--border);border-radius:6px;padding:.1rem .45rem;cursor:pointer;font-size:.85rem;color:var(--em);line-height:1.4" title="Move to other team">${arrow}</button></div>`).join('');
+    return`<div class="card"><div class="card-title">${label}</div><div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1rem"><div class="kpi"><div class="kv">${team.length}</div><div class="kl">Players</div></div><div class="kpi"><div class="kv">${totalRuns}</div><div class="kl">Total Runs</div></div><div class="kpi"><div class="kv">${totalWkts}</div><div class="kl">Total Wkts</div></div><div class="kpi"><div class="kv">${avgSR}</div><div class="kl">Avg SR</div></div></div><div style="font-size:.8rem;color:var(--muted);margin-bottom:1rem"><strong>Roles:</strong> ${roles.Batsman}B · ${roles.Bowler}Bo · ${roles['All-Rounder']}AR</div><div><div style="font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Players</div>${players}</div></div>`;
   };
   document.getElementById('ts-input').innerHTML=`<div class="card"><div class="card-title">✅ Team Split Generated!</div><div style="display:flex;gap:.75rem;flex-wrap:wrap"><button class="btn btn-ghost" onclick="resetTeamSplit()">← Back to Selection</button><button class="btn btn-em" onclick="goToMatchCardFromSplit()">🖨 Create Match Card →</button></div></div>`;
-  document.getElementById('ts-output').innerHTML=`<div class="g2">${card(splitTeamA,'🏆 Team A ('+splitTeamA.length+')')}${card(splitTeamB,'🏆 Team B ('+splitTeamB.length+')')}</div>`;
+  document.getElementById('ts-output').innerHTML=`<div class="g2">${card(splitTeamA,'🏆 Team A ('+splitTeamA.length+')','a')}${card(splitTeamB,'🏆 Team B ('+splitTeamB.length+')','b')}</div>`;
 }
 function toggleSplitPlayer(name){
   const idx=splitSelection.findIndex(p=>p.name===name);
