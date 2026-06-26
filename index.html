@@ -821,18 +821,49 @@ function suggestNamesAndCaptains(){
   const suggestions=[...pool].sort(()=>Math.random()-.5).slice(0,3);
   const div=document.getElementById('split-suggestions');
   if(!div)return;
-  const capCard=(p,label)=>p?`<div style="margin-bottom:.5rem;padding:.5rem .75rem;background:var(--bg);border-radius:8px"><div style="font-size:.8rem;color:var(--muted);margin-bottom:.2rem">${label}</div><div style="font-size:.9rem"><strong>${p.name}</strong> <span style="color:var(--muted)">${p.runs}R ${p.wickets}W · ${p.form}</span></div>${capLabel(p)}</div>`:'';
-  div.innerHTML=`<div class="card" style="margin-top:1rem"><div class="card-title">🤖 AI Suggestions</div><div style="font-size:.8rem;color:var(--muted);margin-bottom:.75rem">Theme: <strong>${theme}</strong> · ${capHist.length} captaincy records</div><div style="margin-bottom:1rem"><div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.5rem">⭐ Captains (rotation-aware)</div>${capCard(capA,'Team A')}${capCard(capB,'Team B')}</div><div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.5rem">🏷 Name Suggestions — tap to apply</div>${suggestions.map(([a,b])=>`<div onclick="applyTeamNames('${a.replace(/'/g,"\\'")}','${b.replace(/'/g,"\\'")}')" style="display:flex;align-items:center;gap:.5rem;padding:.6rem .75rem;background:var(--bg);border-radius:8px;margin-bottom:.4rem;cursor:pointer;border:1px solid var(--border)" onmouseover="this.style.borderColor='var(--em)'" onmouseout="this.style.borderColor='var(--border)'"><span style="flex:1;font-size:.85rem"><strong>${a}</strong> vs <strong>${b}</strong></span><span style="color:var(--em);font-size:.8rem">Apply →</span></div>`).join('')}<div style="font-size:.72rem;color:var(--muted);margin-top:.5rem">Past teams: ${histNames.slice(0,8).join(' · ')}${histNames.length>8?'…':''}</div></div>`;
+  const capOpts=(team,selName)=>team.map(p=>`<option value="${p.name.replace(/"/g,'&quot;')}"${p.name===selName?' selected':''}>${p.name} (${p.runs}R ${p.wickets}W · ${p.form})</option>`).join('');
+  const chipRow=suggestions.map(([a,b])=>`<div onclick="document.getElementById('sug-na').value='${a.replace(/'/g,"\\'")}';document.getElementById('sug-nb').value='${b.replace(/'/g,"\\'")}'" style="display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .65rem;background:var(--bg);border-radius:20px;margin:.2rem;cursor:pointer;border:1px solid var(--border);font-size:.78rem" onmouseover="this.style.borderColor='var(--em)'" onmouseout="this.style.borderColor='var(--border)'">⚡ ${a} vs ${b}</div>`).join('');
+  div.innerHTML=`<div class="card" style="margin-top:1rem">
+    <div class="card-title">🤖 Team Setup</div>
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:1rem">Theme: <strong>${theme}</strong> · ${capHist.length} captaincy records tracked</div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.4rem">Team Names</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <input id="sug-na" class="inp" placeholder="Team A Name" value="${suggestions[0]?suggestions[0][0]:''}">
+        <input id="sug-nb" class="inp" placeholder="Team B Name" value="${suggestions[0]?suggestions[0][1]:''}">
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.3rem">Quick fill:</div>
+      <div>${chipRow}</div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:.4rem">⭐ Captains (rotation-aware · AI pre-selected)</div>
+      <div style="margin-bottom:.5rem">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.25rem">Team A Captain ${capA?capLabel(capA):''}</div>
+        <select id="sug-ca" class="inp">${capOpts(splitTeamA,capA?.name)}</select>
+      </div>
+      <div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.25rem">Team B Captain ${capB?capLabel(capB):''}</div>
+        <select id="sug-cb" class="inp">${capOpts(splitTeamB,capB?.name)}</select>
+      </div>
+    </div>
+    <button class="btn btn-em" style="width:100%" onclick="applyTeamSetup()">Apply & Create Match Card →</button>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:.75rem">Past teams: ${histNames.slice(0,8).join(' · ')}${histNames.length>8?'…':''}</div>
+  </div>`;
 }
-function applyTeamNames(a,b){
-  saveCaptainToHistory(_lastSuggestedCaps.a);
-  saveCaptainToHistory(_lastSuggestedCaps.b);
+function applyTeamSetup(){
+  const na=document.getElementById('sug-na')?.value||'Team A';
+  const nb=document.getElementById('sug-nb')?.value||'Team B';
+  const ca=document.getElementById('sug-ca')?.value||null;
+  const cb=document.getElementById('sug-cb')?.value||null;
+  saveCaptainToHistory(ca);saveCaptainToHistory(cb);
+  mcCapA=ca;mcCapB=cb;
   const ia=document.getElementById('mc-team-a'),ib=document.getElementById('mc-team-b');
-  if(ia){ia.value=a;ia.dispatchEvent(new Event('input'));}
-  if(ib){ib.value=b;ib.dispatchEvent(new Event('input'));}
+  if(ia){ia.value=na;ia.dispatchEvent(new Event('input'));}
+  if(ib){ib.value=nb;ib.dispatchEvent(new Event('input'));}
   mcTeamA=[...splitTeamA];mcTeamB=[...splitTeamB];
   goTabByName('matchcard');
 }
+function applyTeamNames(a,b){applyTeamSetup();}
 function toggleSplitPlayer(name){
   const idx=splitSelection.findIndex(p=>p.name===name);
   if(idx>=0)splitSelection.splice(idx,1);
@@ -879,7 +910,7 @@ function generateSmartOrder(){if(!selectedXI.length){alert('Select players first
 // ════════════════════════════════════════════
 // MATCH CARD
 // ════════════════════════════════════════════
-let mcTeamA=[], mcTeamB=[];
+let mcTeamA=[], mcTeamB=[], mcCapA=null, mcCapB=null;
 function goToMatchCardFromSplit(){
   mcTeamA=[...splitTeamA];
   mcTeamB=[...splitTeamB];
@@ -920,7 +951,8 @@ function updateMatchCard(){
       metaHtml='<div style="margin-top:6px;font-size:.72rem;opacity:.8;color:#a3e8c8;line-height:1.6">'+parts.join('<br>')+'</div>';
     }
     let html='<div style="font-family:\'Outfit\',sans-serif;border-radius:18px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.15),0 0 0 1px rgba(16,185,129,.25);"><div class="xc-stripe"></div><div class="xc-hero"><div style="padding:24px 28px 18px;"><div class="xc-team" style="font-size:1.5rem;">'+teamName.toUpperCase()+'</div><div class="xc-sub">Playing XI</div>'+metaHtml+'</div></div><div class="xc-div"></div><div class="xc-body">';
-    html+=team.map((p,i)=>{const ct=p.catches+p.wk_catches;const stats=[p.runs?`${p.runs}R`:'',p.wickets?`${p.wickets}W`:'',ct?`${ct}${p.wk_catches?'🧤':''}C`:'',p.runouts?`${p.runouts}RO`:''].filter(Boolean).join(' ')||'—';return`<div class="xc-pr"><div class="xc-num">${i+1}</div><div style="flex:1"><div class="xc-pn">${p.name}</div><div class="xc-role">${p.role}</div></div><div class="xc-ps">${stats}</div></div>`;}).join('');
+    const capName=team===mcTeamA?mcCapA:mcCapB;
+    html+=team.map((p,i)=>{const ct=p.catches+p.wk_catches;const stats=[p.runs?`${p.runs}R`:'',p.wickets?`${p.wickets}W`:'',ct?`${ct}${p.wk_catches?'🧤':''}C`:'',p.runouts?`${p.runouts}RO`:''].filter(Boolean).join(' ')||'—';const isCap=capName&&p.name===capName;return`<div class="xc-pr"><div class="xc-num">${i+1}</div><div style="flex:1"><div class="xc-pn">${p.name}${isCap?' <span style="font-size:.7rem;background:rgba(16,185,129,.25);color:#6ee7b7;border-radius:4px;padding:.05rem .35rem;vertical-align:middle">C</span>':''}</div><div class="xc-role">${p.role}</div></div><div class="xc-ps">${stats}</div></div>`;}).join('');
     html+='<div class="xc-foot"><div class="xc-fl">Cricket Analyzer</div></div></div></div>';
     return html;
   };
