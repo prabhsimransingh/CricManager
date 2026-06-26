@@ -743,10 +743,15 @@ function matchNamesFromText(){
     if(found){if(!splitSelection.find(x=>x.name===found.name))splitSelection.push(found);matched.push(inp+(inp.toLowerCase()!==found.name.toLowerCase()?'→'+found.name:''));}
     else unmatched.push(inp);
   });
-  const msg=(matched.length?'✅ '+matched.join(', '):'')+((unmatched.length?(matched.length?' · ':'')+('❌ No match: '+unmatched.join(', ')):''));
+  const total=inputs.length;
+  let summaryHtml=`<div style="margin-top:.75rem;padding:.75rem;background:var(--bg);border-radius:10px;font-size:.8rem">`;
+  summaryHtml+=`<div style="font-weight:700;margin-bottom:.5rem">📊 ${matched.length}/${total} matched</div>`;
+  if(matched.length)summaryHtml+=`<div style="color:var(--em);margin-bottom:.4rem">✅ <strong>Matched:</strong> ${matched.map(m=>m.includes('→')?`<span style="color:var(--amber)">${m}</span>`:m).join(', ')}</div>`;
+  if(unmatched.length)summaryHtml+=`<div style="color:#f87171"><strong>❌ Not found (${unmatched.length}):</strong> ${unmatched.join(', ')}</div>`;
+  summaryHtml+=`</div>`;
   renderTeamSplit();
   const box=document.getElementById('name-paste-box');if(box)box.value=raw;
-  const fb=document.getElementById('match-feedback');if(fb)fb.textContent=msg;
+  const fb=document.getElementById('match-feedback');if(fb)fb.innerHTML=summaryHtml;
 }
 function renderTeamSplit(){
   if(!showContent('ts'))return;
