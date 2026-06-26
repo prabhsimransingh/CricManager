@@ -735,12 +735,14 @@ function matchNamesFromText(){
   if(!inputs.length)return;
   const all=Object.values(DB.players);
   const matched=[],unmatched=[];
+  const usedNames=new Set();
   inputs.forEach(inp=>{
     const lo=inp.toLowerCase();
-    let found=all.find(p=>p.name.toLowerCase()===lo);
-    if(!found)found=all.find(p=>p.name.toLowerCase().startsWith(lo)||p.name.toLowerCase().includes(' '+lo));
-    if(!found){let best=null,bestD=Infinity;all.forEach(p=>{const d=_lev(lo,p.name.toLowerCase());if(d<bestD){bestD=d;best=p;}});const thresh=Math.max(2,Math.floor(inp.length*.4));if(best&&bestD<=thresh)found=best;}
-    if(found){if(!splitSelection.find(x=>x.name===found.name))splitSelection.push(found);matched.push(inp+(inp.toLowerCase()!==found.name.toLowerCase()?'→'+found.name:''));}
+    const avail=all.filter(p=>!usedNames.has(p.name));
+    let found=avail.find(p=>p.name.toLowerCase()===lo);
+    if(!found)found=avail.find(p=>p.name.toLowerCase().startsWith(lo)||p.name.toLowerCase().includes(' '+lo));
+    if(!found){let best=null,bestD=Infinity;avail.forEach(p=>{const d=_lev(lo,p.name.toLowerCase());if(d<bestD){bestD=d;best=p;}});const thresh=Math.max(2,Math.floor(inp.length*.4));if(best&&bestD<=thresh)found=best;}
+    if(found){usedNames.add(found.name);if(!splitSelection.find(x=>x.name===found.name))splitSelection.push(found);matched.push(inp+(inp.toLowerCase()!==found.name.toLowerCase()?'→'+found.name:''));}
     else unmatched.push(inp);
   });
   const total=inputs.length;
